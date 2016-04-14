@@ -6,120 +6,48 @@
     RequestedTheme="Dark">
 
     <Application.Resources>
-        <Style TargetType="GridViewItem" x:Key="myGridViewItem">
-            <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
-            <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="{ThemeResource SystemControlForegroundBaseHighBrush}" />
-            <Setter Property="TabNavigation" Value="Local" />
-            <Setter Property="IsHoldingEnabled" Value="True" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="Margin" Value="0,0,4,4" />
-            <Setter Property="MinWidth" Value="{ThemeResource GridViewItemMinWidth}" />
-            <Setter Property="MinHeight" Value="{ThemeResource GridViewItemMinHeight}" />
-            <Setter Property="AllowDrop" Value="False" />
+        <Style TargetType="Button" x:Name="AddToPlayListButton">            
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="GridViewItem">
-                        <Grid x:Name="ContentBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" RenderTransformOrigin="0.5,0.5">
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="RootGrid" Background="{TemplateBinding Background}">
                             <VisualStateManager.VisualStateGroups>
                                 <VisualStateGroup x:Name="CommonStates">
                                     <VisualState x:Name="Normal">
                                         <Storyboard>
-                                            <PointerUpThemeAnimation Storyboard.TargetName="ContentPresenter" />
+                                            <PointerUpThemeAnimation Storyboard.TargetName="RootGrid" />
                                         </Storyboard>
                                     </VisualState>
                                     <VisualState x:Name="PointerOver">
-                                        <Storyboard>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Root" Storyboard.TargetProperty="Background">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightListLowBrush}" />
+                                        <Storyboard>                                            
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightAltBaseMediumBrush}" />
                                             </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Content" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightAltBaseHighBrush}" />
-                                            </ObjectAnimationUsingKeyFrames>
+                                            <PointerUpThemeAnimation Storyboard.TargetName="RootGrid" />
                                         </Storyboard>
                                     </VisualState>
                                     <VisualState x:Name="Pressed">
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="BorderRectangle" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderRectangle" Storyboard.TargetProperty="Stroke">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightListMediumBrush}" />
-                                            </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlForegroundBaseHighBrush}" />
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightAltBaseMediumBrush}" />
                                             </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="FocusVisualBlack" Storyboard.TargetProperty="Stroke">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Transparent" />
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <PointerDownThemeAnimation TargetName="ContentPresenter" />
+                                            <PointerDownThemeAnimation Storyboard.TargetName="RootGrid" />
                                         </Storyboard>
                                     </VisualState>
-                                    <VisualState x:Name="Selected">
+                                    <VisualState x:Name="Disabled">
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="MultiSelectCheck" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
-                                            <DoubleAnimation Storyboard.TargetName="BorderRectangle" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderRectangle" Storyboard.TargetProperty="Stroke">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightAccentBrush}" />
-                                            </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlForegroundBaseHighBrush}" />
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlDisabledBaseMediumLowBrush}" />
                                             </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="FocusVisualBlack" Storyboard.TargetProperty="Stroke">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Transparent" />
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="MultiSelectSquare" Storyboard.TargetProperty="Background">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightAccentBrush}" />
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <PointerUpThemeAnimation Storyboard.TargetName="ContentPresenter" />
                                         </Storyboard>
                                     </VisualState>
-                                    <VisualState x:Name="PointerOverSelected">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="MultiSelectCheck" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
-                                            <DoubleAnimation Storyboard.TargetName="BorderRectangle" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderRectangle" Storyboard.TargetProperty="Stroke">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightListAccentMediumBrush}" />
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlForegroundBaseHighBrush}" />
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="FocusVisualBlack" Storyboard.TargetProperty="Stroke">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Transparent" />
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="MultiSelectSquare" Storyboard.TargetProperty="Background">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightAccentBrush}" />
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <PointerUpThemeAnimation Storyboard.TargetName="ContentPresenter" />
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="PressedSelected">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="MultiSelectCheck" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
-                                            <DoubleAnimation Storyboard.TargetName="BorderRectangle" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderRectangle" Storyboard.TargetProperty="Stroke">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightListAccentHighBrush}" />
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlForegroundBaseHighBrush}" />
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="FocusVisualBlack" Storyboard.TargetProperty="Stroke">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Transparent" />
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="MultiSelectSquare" Storyboard.TargetProperty="Background">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightAccentBrush}" />
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <PointerDownThemeAnimation TargetName="ContentPresenter" />
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>                                
+                                </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
-                            </Grid>
+                            <ContentPresenter x:Name="ContentPresenter" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Content="{TemplateBinding Content}" ContentTransitions="{TemplateBinding ContentTransitions}" ContentTemplate="{TemplateBinding ContentTemplate}" Padding="{TemplateBinding Padding}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" AutomationProperties.AccessibilityView="Raw" />
+                        </Grid>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-
-    </Application.Resources>
-    
+    </Application.Resources>    
 </Application>

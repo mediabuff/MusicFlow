@@ -23,6 +23,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.Media;
 using Windows.Media.Playback;
+using Windows.UI.Xaml.Media.Animation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -65,6 +66,18 @@ namespace MusicFlow.Views
         {
             MyMediaPlayer.addToNowPlaying(((sender as Button).DataContext) as Song);
             mp.updateNPList();
+        }
+
+        private void Grid_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            var x = ((sender as Grid).Children[1] as RelativePanel).Children[2] as Button;
+            x.Visibility = Visibility.Visible;
+        }
+
+        private void Grid_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            var x = ((sender as Grid).Children[1] as RelativePanel).Children[2] as Button;
+            x.Visibility = Visibility.Collapsed;
         }
     }
 }

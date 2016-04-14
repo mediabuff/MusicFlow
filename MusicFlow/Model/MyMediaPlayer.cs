@@ -56,7 +56,7 @@ namespace MusicFlow.Model
             mainpage.bgImage.Source = new BitmapImage(new Uri(ci.AlbumCover));
             mainpage.animateBackGround();
         }
-
+        
         public static void playNextSong()
         {
             if (currentSong.Length != null)
@@ -72,7 +72,6 @@ namespace MusicFlow.Model
                     mainpage.disableNextButton();
                 }
             }
-            
         }
 
         public static void playPreviousSong()
