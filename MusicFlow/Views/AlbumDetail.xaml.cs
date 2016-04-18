@@ -59,9 +59,7 @@ namespace MusicFlow.Views
             MyMediaPlayer.playSong(ci);
             mp.updateNPList();
         }
-
-      
-
+        
         private void B1_Click(object sender, RoutedEventArgs e)
         {
             MyMediaPlayer.addToNowPlaying(((sender as Button).DataContext) as Song);

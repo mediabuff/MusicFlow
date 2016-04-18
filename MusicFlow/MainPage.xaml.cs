@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Media.Playback;
@@ -29,21 +30,16 @@ using Windows.UI.Xaml.Navigation;
 
 namespace MusicFlow
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainPage : Page
     {
-        ObservableCollection<Song> MusicList;
+        public ObservableCollection<Song> MusicList;
 
         public MainPage()
         {
             this.InitializeComponent();
-
             SystemNavigationManager.GetForCurrentView().BackRequested += BackRequested;
             SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
         }
-        
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
@@ -51,7 +47,9 @@ namespace MusicFlow
             await GetMusic();
             MainFrame.Navigate(typeof(Views.AlbumView), MusicList);
             var mymp = new MyMediaPlayer();
-        }        
+        }
+        #region Music scanning Algorithm
+
 
         public async Task GetMusic()
         {
@@ -158,6 +156,7 @@ namespace MusicFlow
             //await f1.DeleteAsync();
             //await f2.DeleteAsync();              
         }
+        #endregion
 
         //Create Media Transport Controls
         public void setupMediaPlayer(string c,string t,string a)
@@ -196,32 +195,27 @@ namespace MusicFlow
             titlebar.ButtonHoverBackgroundColor = black;
         }
 
-        private void BackDrop_Loaded(object sender, RoutedEventArgs e)
+        // MTC buttons
+        private void PlayListView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            animateBackGround();
+            var ci = e.ClickedItem as Song;
+            MyMediaPlayer.currentSong = ci;
+            MyMediaPlayer.playSong(ci);
         }
 
-        public void animateBackGround()
+        private void PreviousButton_Click(object sender, RoutedEventArgs e)
         {
-            Storyboard1.Begin();
-            nowPlayingImageAnimation.Begin();
-            nowPlayingTextAnimation.Begin();
+            MyMediaPlayer.playPreviousSong();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-           
-        }
-
-       
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-           
-        }
-
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void NextButton_Click(object sender, RoutedEventArgs e)
         {
             MyMediaPlayer.playNextSong();
+        }
+
+        private void PlayButton_Click(object sender, RoutedEventArgs e)
+        {
+            MyMediaPlayer.PlayPause();
         }
 
         public void disableNextButton()
@@ -234,22 +228,46 @@ namespace MusicFlow
             NextButton.IsEnabled = true;
         }
 
+        //Background image
+        private void BackDrop_Loaded(object sender, RoutedEventArgs e)
+        {
+            animateBackGround();
+        }
+
+        public void animateBackGround()
+        {
+            Storyboard1.Begin();
+            nowPlayingImageAnimation.Begin();
+            nowPlayingTextAnimation.Begin();
+        }
+
+        //Update NowPlaying ListView
         public void updateNPList()
         {
             PlayListView.ItemsSource = null;
-            PlayListView.ItemsSource = MyMediaPlayer.nowPlayingList;            
+            PlayListView.ItemsSource = MyMediaPlayer.nowPlayingList;
         }
 
-        private void PlayListView_ItemClick(object sender, ItemClickEventArgs e)
+
+        //Drag and drop
+        private async void StackPanel_Drop(object sender, DragEventArgs e)
         {
-            var ci = e.ClickedItem as Song;
-            MyMediaPlayer.currentSong = ci;
-            MyMediaPlayer.playSong(ci);
+            if (e.DataView.Contains(StandardDataFormats.Text))
+            {
+                // We need to take a Deferral as we won't be able to confirm the end
+                // of the operation synchronously
+                var def = e.GetDeferral();
+                var s = await e.DataView.GetTextAsync();
+                
+
+                e.AcceptedOperation = DataPackageOperation.Copy;
+                def.Complete();
+            }
         }
 
-        private void PreviousButton_Click(object sender, RoutedEventArgs e)
+        private void StackPanel_DragOver(object sender, DragEventArgs e)
         {
-            MyMediaPlayer.playPreviousSong();
+            e.AcceptedOperation = (e.DataView.Contains(StandardDataFormats.Text)) ? DataPackageOperation.Copy : DataPackageOperation.None;
         }
     }
 }

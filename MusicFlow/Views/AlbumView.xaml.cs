@@ -18,6 +18,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.Graphics.Effects;
+using Windows.ApplicationModel.DataTransfer;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -31,27 +32,26 @@ namespace MusicFlow.Views
         ObservableCollection<Song> myMusic;
         IEnumerable<Song> albumList;
         private Compositor _compositor;
-      
+        MainPage mp = (Window.Current.Content as Frame).Content as MainPage;
+
         public AlbumView()
         {
             this.InitializeComponent();
             InitializeCompositor();
         }
 
-        private void InitializeCompositor()
-        {
-            _compositor = ElementCompositionPreview.GetElementVisual(this).Compositor;
-        }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {           
             myMusic = (ObservableCollection<Song>)e.Parameter;
-            albumList = myMusic.GroupBy(i=>i.Album).Select(i=>i.FirstOrDefault()).OrderBy(i=>i.Album);           
+            albumList = myMusic.GroupBy(i=>i.Album).Select(i=>i.FirstOrDefault()).OrderBy(i=>i.Album);
+            
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
-        {           
-            var itemPanel = albumView.ItemsPanelRoot as ItemsWrapGrid;
+        {
+            var SC = FindFirstChild<ScrollViewer>(albumView) as ScrollViewer;
+            (App.Current as App).ScrollPosition = SC.VerticalOffset;
         }
 
         private void albumView_ItemClick(object sender, ItemClickEventArgs e)
@@ -60,6 +60,56 @@ namespace MusicFlow.Views
             var al = clickedItem.Album;
             var selectedAlbum = myMusic.Where(i => i.Album == al).Select(i=>i);
             Frame.Navigate(typeof(AlbumDetail), selectedAlbum);
+        }       
+       
+        private void albumView_Loaded(object sender, RoutedEventArgs e)
+        {
+            var SC = FindFirstChild<ScrollViewer>(albumView) as ScrollViewer;
+            if ((App.Current as App).ScrollPosition != 0)
+                SC.ScrollToVerticalOffset((App.Current as App).ScrollPosition);
+        }        
+
+
+        //Mouse hover play button
+        private void albumgrid_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            var RelPan = sender as RelativePanel;
+            (RelPan.Children[2] as Grid).Visibility = Visibility.Visible;
+        }
+
+        private void albumgrid_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            var RelPan = sender as RelativePanel;
+            (RelPan.Children[2] as Grid).Visibility = Visibility.Collapsed;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var song = (sender as Button).DataContext as Song;
+
+            var x = mp.MusicList.Where(i => i.Album == song.Album).ToList();
+
+            MyMediaPlayer.nowPlayingList.Clear();
+            foreach (var ss in x)
+                MyMediaPlayer.nowPlayingList.AddLast(ss);
+            MyMediaPlayer.playSong(x[0]);
+            mp.updateNPList();
+        }
+
+
+        //Drag and Drop
+        private void albumView_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
+        {
+            var SelectedSong = e.Items[0] as Song;
+            e.Data.SetData(StandardDataFormats.Text, SelectedSong.Album);
+            e.Data.RequestedOperation = DataPackageOperation.Copy;
+        }
+
+
+        //Animations
+        private void InitializeCompositor()
+        {
+            _compositor = ElementCompositionPreview.GetElementVisual(this).Compositor;
         }
 
         private void albumView_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
@@ -70,24 +120,43 @@ namespace MusicFlow.Views
 
             if (!args.InRecycleQueue)
                 args.ItemContainer.Loaded += ItemConainer_Loaded;
+
+            
+            //
+            //Resize animation
+            //
+            //var visual = ElementCompositionPreview.GetElementVisual(args.ItemContainer);
+            //var comp = visual.Compositor;
+
+            //var offsetAnimation = comp.CreateVector3KeyFrameAnimation();
+            //offsetAnimation.InsertExpressionKeyFrame(1.0f, "this.FinalValue");
+            //offsetAnimation.Duration = TimeSpan.FromMilliseconds(450);
+            //var aniGroup = comp.CreateAnimationGroup();
+            //aniGroup.Add("Offset", offsetAnimation);
+
+            //var implicitAnimationMap = comp.CreateImplicitAnimationMap();
+            //implicitAnimationMap.Add("Offset", aniGroup);
+
+            //visual.ImplicitAnimations = implicitAnimationMap;
+
             args.Handled = true;
         }
-
+        
         private void ItemConainer_Loaded(object sender, RoutedEventArgs e)
         {
             var itemPanel = albumView.ItemsPanelRoot as ItemsWrapGrid;
             var itemContainer = sender as GridViewItem;
             var itemIndex = albumView.IndexFromContainer(itemContainer);
-          
 
-            if(itemIndex>=itemPanel.FirstVisibleIndex && itemIndex <= itemPanel.LastVisibleIndex)
+
+            if (itemIndex >= itemPanel.FirstVisibleIndex && itemIndex <= itemPanel.LastVisibleIndex)
             {
                 var itemVisual = ElementCompositionPreview.GetElementVisual(itemContainer);
-                
+
                 float width = 200;
                 float height = 200;
                 itemVisual.Size = new Vector2(width, height);
-                itemVisual.CenterPoint = new Vector3(width/2, height / 2 ,0f);
+                itemVisual.CenterPoint = new Vector3(width / 2, height / 2, 0f);
                 itemVisual.Opacity = 0.0f;
                 //itemVisual.Offset = new Vector3(0, 100, 0);
 
@@ -116,11 +185,30 @@ namespace MusicFlow.Views
             itemContainer.Loaded -= ItemConainer_Loaded;
         }
 
-        private void albumView_Loaded(object sender, RoutedEventArgs e)
+
+        //Helper methos
+        DependencyObject FindFirstChild<T>(DependencyObject initial)
         {
+            DependencyObject current = initial;
+            if (current == null)
+                return null;
+            if (current.GetType() == typeof(T))
+                return current;
+            else
+            {
+                var count = VisualTreeHelper.GetChildrenCount(current);
+                DependencyObject result = null;
+                for (int i = 0; i < count; i++)
+                {
+                    result = FindFirstChild<T>(VisualTreeHelper.GetChild(current, i));
+                    if (result != null)
+                        break;
+                }
+                return result;
+            }
 
         }
 
-      
+       
     }
 }

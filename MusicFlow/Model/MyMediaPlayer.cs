@@ -27,11 +27,35 @@ namespace MusicFlow.Model
             mp.MediaEnded += MediaEnded;
             mp.SystemMediaTransportControls.ButtonPressed += smtcButtonPressed;
             mp.AudioCategory = MediaPlayerAudioCategory.Media;
-        }        
+        }
+
+        private void MediaEnded(MediaPlayer sender, object args)
+        {
+            if (currentSong != nowPlayingList.Last.Value)
+            {
+                playNextSong();
+            }
+
+        }
 
         private void smtcButtonPressed(SystemMediaTransportControls sender, SystemMediaTransportControlsButtonPressedEventArgs args)
         {
             
+        }
+
+        
+        //Play Song
+        public static async void playSong(Song ci)
+        {
+            mp.SetFileSource(await StorageFile.GetFileFromPathAsync(ci.SongFile));
+            mp.Play();            
+            currentSong = ci;
+            updateSMTC(ci);
+            MainPage mainpage = (Window.Current.Content as Frame).Content as MainPage;
+            mainpage.PlayButton.Content = "";
+            mainpage.setupMediaPlayer(ci.AlbumCover, ci.Title, ci.Album);
+            mainpage.bgImage.Source = new BitmapImage(new Uri(ci.AlbumCover));
+            mainpage.animateBackGround();
         }
 
         public static async void updateSMTC(Song s1)
@@ -45,18 +69,23 @@ namespace MusicFlow.Model
             smtc.DisplayUpdater.Update();
         }
 
-        public static async void playSong(Song ci)
+
+        //Button Events
+        public static void PlayPause()
         {
-            mp.SetFileSource(await StorageFile.GetFileFromPathAsync(ci.SongFile));
-            mp.Play();
-            currentSong = ci;
-            updateSMTC(ci);
             MainPage mainpage = (Window.Current.Content as Frame).Content as MainPage;
-            mainpage.setupMediaPlayer(ci.AlbumCover, ci.Title, ci.Album);
-            mainpage.bgImage.Source = new BitmapImage(new Uri(ci.AlbumCover));
-            mainpage.animateBackGround();
+            if (mp.CurrentState == MediaPlayerState.Playing)
+            {
+                mp.Pause();
+                mainpage.PlayButton.Content = "";
+            }
+            else if (mp.CurrentState == MediaPlayerState.Paused)
+            {
+                mp.Play();
+                mainpage.PlayButton.Content = "";
+            }
         }
-        
+
         public static void playNextSong()
         {
             if (currentSong.Length != null)
@@ -104,17 +133,6 @@ namespace MusicFlow.Model
             {
                 mainpage.enableNextButton();
             }
-        }
-
-        private void MediaEnded(MediaPlayer sender, object args)
-        {
-            if(currentSong != nowPlayingList.Last.Value)
-            {
-                playNextSong(); 
-            }
-        }
+        }         
     }
-
-
-   
 }

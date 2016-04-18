@@ -1,36 +1,33 @@
-﻿<Page
-    x:Class="MusicFlow.Views.AlbumView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:MusicFlow.Views"
-    xmlns:model="using:MusicFlow.Model"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+﻿<Page x:Class="MusicFlow.Views.AlbumView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="using:MusicFlow.Views" xmlns:model="using:MusicFlow.Model" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d">
 
     <Page.Resources>
-        
+
     </Page.Resources>
-    
-    <Grid Name="RootScrollViewer" >
 
+    <Grid Name="RootScrollViewer">
 
-        <TextBlock Text="Albums" FontSize="32" Margin="20,12,20,12" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40"/>
+        <TextBlock Text="Albums" FontSize="32" Margin="20,12,20,12" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40" />
 
-        <GridView Visibility="Visible" Name="albumView" ItemsSource="{x:Bind albumList}" SelectionMode="None" IsItemClickEnabled="True" ItemClick="albumView_ItemClick" Margin="10,60,0,0" ContainerContentChanging="albumView_ContainerContentChanging" ItemContainerTransitions="{x:Null}"  Loaded="albumView_Loaded">
+        <GridView Visibility="Visible" Name="albumView" ItemsSource="{x:Bind albumList}" SelectionMode="Extended" IsItemClickEnabled="True" ItemClick="albumView_ItemClick" Margin="10,60,0,0" ContainerContentChanging="albumView_ContainerContentChanging" ItemContainerTransitions="{x:Null}" Loaded="albumView_Loaded" CanDragItems="True" DragItemsStarting="albumView_DragItemsStarting" >
             <GridView.ItemContainerStyle>
                 <Style TargetType="GridViewItem">
-                    <Setter Property="Margin" Value="8" />                    
+                    <Setter Property="Margin" Value="8" />
                 </Style>
             </GridView.ItemContainerStyle>
-            <GridView.ItemTemplate >
+            <GridView.ItemTemplate>
                 <DataTemplate x:DataType="model:Song">
-                    <RelativePanel Name="albumgrid" Height="260" Width="200" ToolTipService.ToolTip="{x:Bind Album}">
-                        <Image Name="CoverImage" Source="{x:Bind AlbumCover}" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Height="200" Width="200" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignHorizontalCenterWithPanel="True"/>
+                    <RelativePanel Name="albumgrid" Height="260" Width="200" ToolTipService.ToolTip="{x:Bind Album}" PointerEntered="albumgrid_PointerEntered" PointerExited="albumgrid_PointerExited">
+                        <RelativePanel.Background>
+                            <SolidColorBrush Color="Gray" Opacity=".2" />
+                        </RelativePanel.Background>
+                        <Image Name="CoverImage" Source="{x:Bind AlbumCover}" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Height="200" Width="200" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignHorizontalCenterWithPanel="True" />
                         <StackPanel VerticalAlignment="Bottom" RelativePanel.Below="CoverImage" Margin="8,4,8,4">
                             <TextBlock Text="{x:Bind Album}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Text="{x:Bind AlbumArtist}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,4,0,0"/>
+                            <TextBlock Text="{x:Bind AlbumArtist}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,4,0,0" />
                         </StackPanel>
+                        <Grid Name="PlayButtonGrid" Visibility="Collapsed" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignHorizontalCenterWithPanel="True" Margin="0,0,0,60" Height="60" Width="60">
+                            <Button Style="{StaticResource AddToPlayListButton}" Content="&#xE102;" FontSize="28" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center" HorizontalAlignment="Center" UseLayoutRounding="True" Background="Transparent" DataContext="{x:Bind }" Click="Button_Click"/>
+                        </Grid>
                     </RelativePanel>
                 </DataTemplate>
             </GridView.ItemTemplate>
@@ -38,5 +35,4 @@
 
     </Grid>
 
-    
 </Page>

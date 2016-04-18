@@ -22,6 +22,8 @@ namespace MusicFlow
     /// </summary>
     sealed partial class App : Application
     {
+        public double ScrollPosition=0;
+
         public App()
         {
             Microsoft.ApplicationInsights.WindowsAppInitializer.InitializeAsync(
