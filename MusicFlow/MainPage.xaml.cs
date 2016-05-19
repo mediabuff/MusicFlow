@@ -1,4 +1,6 @@
-﻿using MusicFlow.Model;
+﻿using Microsoft.Graphics.Canvas.Effects;
+using Microsoft.Graphics.Canvas.UI.Xaml;
+using MusicFlow.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,12 +17,14 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.UI;
+using Windows.UI.Composition;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
@@ -33,6 +37,8 @@ namespace MusicFlow
     public sealed partial class MainPage : Page
     {
         public ObservableCollection<Song> MusicList;
+        public double playerPosition=0;
+        public double totalTime=0;
 
         public MainPage()
         {
@@ -44,12 +50,15 @@ namespace MusicFlow
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             setupTitleBar();
+            //setupMediaPlayer("ms-appx:///Assets/musicFlow.png", "MusicFlow", "For Windows 10");
             await GetMusic();
             MainFrame.Navigate(typeof(Views.AlbumView), MusicList);
             var mymp = new MyMediaPlayer();
-        }
-        #region Music scanning Algorithm
 
+            
+        }
+
+        #region Music scanning Algorithm
 
         public async Task GetMusic()
         {
@@ -161,9 +170,11 @@ namespace MusicFlow
         //Create Media Transport Controls
         public void setupMediaPlayer(string c,string t,string a)
         {
-            npCoverImage.Source = new BitmapImage(new Uri(c));
+            npCoverImage.Source = new BitmapImage(new Uri(c));           
             npTitleTextBlock.Text = t;
             npAlbumTextBlock.Text = a;
+            bgImage.Source = new BitmapImage(new Uri(c));
+            animateBackGround();            
         }
 
         //Back requested
@@ -252,22 +263,55 @@ namespace MusicFlow
         //Drag and drop
         private async void StackPanel_Drop(object sender, DragEventArgs e)
         {
+            
             if (e.DataView.Contains(StandardDataFormats.Text))
             {
                 // We need to take a Deferral as we won't be able to confirm the end
                 // of the operation synchronously
                 var def = e.GetDeferral();
-                var s = await e.DataView.GetTextAsync();
-                
-
+                var str = await e.DataView.GetTextAsync();
+                var type = str.Substring(str.Length - 4);
+                var song = Song.fromString(str.Substring(0,str.Length-4));
+                if (type == "albm")
+                {
+                    e.DragUIOverride.Caption = "Play "+song.Album;
+                    MyMediaPlayer.playAlbum(song.Album);
+                }
+                else if (type == "song")
+                {
+                    e.DragUIOverride.Caption = "Play "+ song.Title;
+                    MyMediaPlayer.playSong(song);
+                }                
                 e.AcceptedOperation = DataPackageOperation.Copy;
                 def.Complete();
             }
         }
 
-        private void StackPanel_DragOver(object sender, DragEventArgs e)
+        private async void StackPanel_DragOver(object sender, DragEventArgs e)
         {
             e.AcceptedOperation = (e.DataView.Contains(StandardDataFormats.Text)) ? DataPackageOperation.Copy : DataPackageOperation.None;
+            var def = e.GetDeferral();
+            var str = await e.DataView.GetTextAsync();
+            var type = str.Substring(str.Length - 4);
+            var song = Song.fromString(str.Substring(0, str.Length - 4));
+            if (type == "albm")
+            {
+                e.DragUIOverride.Caption = "Play \"" + song.Album+"\"";                
+            }
+            else if (type == "song")
+            {
+                e.DragUIOverride.Caption = "Play \"" + song.Title+"\"";                
+            }
+            e.DragUIOverride.IsGlyphVisible = false;
+            e.AcceptedOperation = DataPackageOperation.Copy;
+            def.Complete();
         }
+
+        private void ProgressBar_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+
+        }    
+
+       
     }
 }

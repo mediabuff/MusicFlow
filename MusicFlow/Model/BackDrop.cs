@@ -13,223 +13,82 @@ using Windows.UI.Xaml.Hosting;
 
 namespace MusicFlow.Model
 {
-    class BackDrop : Control
+    public class BackDrop : Control
     {
         Compositor m_compositor;
         SpriteVisual m_blurVisual;
-        SpriteVisual m_shadowVisual;
         CompositionEffectBrush m_blurBrush;
-        ContainerVisual m_container;
-
-        public CompositionPropertySet VisualProperties
-        {
-            get
-            {
-                return m_blurVisual.Properties;
-            }
-        }
-
-        public Compositor Compositor
-        {
-            get
-            {
-                return m_compositor;
-            }
-
-            private set
-            {
-                m_compositor = value;
-            }
-        }
+        bool m_setUpExpressions;
+        Visual m_rootVisual;
 
         public BackDrop()
         {
-            var myBackingVisual = ElementCompositionPreview.GetElementVisual(this as UIElement);
-            m_compositor = myBackingVisual.Compositor;
-            m_blurBrush = BuildColoredBlurBrush();
-            m_blurBrush.SetSourceParameter("source", m_compositor.CreateDestinationBrush());
+            m_rootVisual = ElementCompositionPreview.GetElementVisual(this as UIElement);
+            Compositor = m_rootVisual.Compositor;
 
-            m_blurVisual = m_compositor.CreateSpriteVisual();
+            m_blurBrush = BuildBlurBrush();
+            m_blurBrush.SetSourceParameter("source", m_compositor.CreateBackdropBrush());
+
+            m_blurVisual = Compositor.CreateSpriteVisual();
             m_blurVisual.Brush = m_blurBrush;
 
-            //m_blurVisual.Properties.InsertScalar("BlurValue", 0.0f);
-            //m_blurVisual.Properties.InsertScalar("FadeValue", 0.0f);
+            BlurAmount = 9;
+            TintColor = Colors.Transparent;
 
-            //SetupPropertySetExpression();
+            ElementCompositionPreview.SetElementChildVisual(this as UIElement, m_blurVisual);
 
-            m_container = m_compositor.CreateContainerVisual();
-            m_container.Children.InsertAtTop(m_blurVisual);
-
-            CreateDropshadow();
-
-            ElementCompositionPreview.SetElementChildVisual(this as UIElement, m_container);
             this.Loading += OnLoading;
             this.Unloaded += OnUnloaded;
         }
 
-        private void OnLoading(FrameworkElement sender, object args)
+        public const string BlurAmountProperty = nameof(BlurAmount);
+        public const string TintColorProperty = nameof(TintColor);
+
+        public double BlurAmount
         {
-            this.SizeChanged += OnSizeChanged;
-            OnSizeChanged(this, null);
-        }
-
-        private void OnUnloaded(object sender, RoutedEventArgs e)
-        {
-            this.SizeChanged -= OnSizeChanged;
-        }
-
-        private void CreateDropshadow()
-        {
-            m_shadowVisual = m_compositor.CreateSpriteVisual();
-
-            var theshadow = m_compositor.CreateDropShadow();
-            theshadow.BlurRadius = 32.0f;
-            m_shadowVisual.Shadow = theshadow;
-
-            m_container.Children.InsertAtBottom(m_shadowVisual);
-        }
-
-        private void SetupPropertySetExpression()
-        {
-            var blurAnimator = m_compositor.CreateExpressionAnimation();
-            blurAnimator.SetReferenceParameter("bluramount", m_blurVisual);
-            blurAnimator.Expression = "bluramount.BlurValue";
-            m_blurBrush.StartAnimation("Blur.BlurAmount", blurAnimator);
-
-            var fadeInAnimator = m_compositor.CreateExpressionAnimation();
-            fadeInAnimator.SetReferenceParameter("fadeInAmount", m_blurVisual);
-            fadeInAnimator.Expression = "fadeInAmount.FadeValue";
-            m_blurBrush.StartAnimation("mixer.Source1Amount", fadeInAnimator);
-
-            var fadeOutAnimator = m_compositor.CreateExpressionAnimation();
-            fadeOutAnimator.SetReferenceParameter("fadeOutAmount", m_blurVisual);
-            fadeOutAnimator.Expression = "1-fadeOutAmount.FadeValue";
-            m_blurBrush.StartAnimation("mixer.Source2Amount", fadeOutAnimator);
-        }
-
-        private void OnSizeChanged(object sender, Windows.UI.Xaml.SizeChangedEventArgs e)
-        {
-            if (m_blurVisual != null)
+            get
             {
-                var sharedSize = new System.Numerics.Vector2((float)this.ActualWidth, (float)this.ActualHeight);
-                m_blurVisual.Size = sharedSize;
+                float value = 0;
+                m_rootVisual.Properties.TryGetScalar(BlurAmountProperty, out value);
+                return value;
             }
-
-            if (m_shadowVisual != null)
+            set
             {
-                m_shadowVisual.Size = new Vector2((float)this.ActualWidth, 4.0f);
-                m_shadowVisual.Offset = new Vector3(0.0f, ((float)this.ActualHeight - 1), 0.0f);
-            }
-        }
-
-        private CompositionEffectBrush BuildBlurBrush()
-        {
-            var gaussianBlur = new GaussianBlurEffect
-            {
-                Name = "Blur",
-                Source = new CompositionEffectSourceParameter("source"),
-                BlurAmount = 15.0f,
-                BorderMode = EffectBorderMode.Hard,
-                Optimization = EffectOptimization.Balanced
-            };
-
-            var factory = m_compositor.CreateEffectFactory(gaussianBlur);
-
-            return factory.CreateBrush();
-        }
-
-        private CompositionEffectBrush BuildColoredBlurBrush()
-        {
-            var gaussianBlur = new GaussianBlurEffect
-            {
-                Name = "Blur",
-                Source = new CompositionEffectSourceParameter("source"),
-                BlurAmount = 25.0f,
-                BorderMode = EffectBorderMode.Hard,
-                Optimization = EffectOptimization.Speed
-            };
-
-            var colorEffect = new ColorSourceEffect
-            {
-                Name = "ColorSource2",
-                Color = Colors.DarkGray
-            };
-
-            var blendEffect = new BlendEffect
-            {
-                Mode = BlendEffectMode.Multiply,
-
-                Background = gaussianBlur,
-                Foreground = colorEffect
-            };
-
-            var factory = m_compositor.CreateEffectFactory(blendEffect);
-
-            var brush = factory.CreateBrush();
-
-            return brush;
-        }
-
-        private CompositionEffectBrush BuildColoredBlurMixerBrush()
-        {
-            var arithmeticComposit = new ArithmeticCompositeEffect
-            {
-                Name = "Mixer",
-                Source1Amount = 0.0f,
-                Source2Amount = 0.0f,
-                MultiplyAmount = 0,
-                Source2 = new ColorSourceEffect
+                if (!m_setUpExpressions)
                 {
-                    Name = "ColorSource",
-                    Color = Colors.DimGray
-                },
-                Source1 = new BlendEffect
-                {
-                    Mode = BlendEffectMode.Multiply,
-
-                    Foreground = new ColorSourceEffect
-                    {
-                        Name = "ColorSource2",
-                        Color = Colors.DimGray
-                    },
-                    Background = new GaussianBlurEffect
-                    {
-                        Name = "Blur",
-                        Source = new CompositionEffectSourceParameter("source"),
-                        BlurAmount = 0.0f, //15
-                        BorderMode = EffectBorderMode.Hard,
-                        Optimization = EffectOptimization.Balanced
-                    }
+                    m_blurBrush.Properties.InsertScalar("Blur.BlurAmount", (float)value);
                 }
-            };
-
-            var factory = m_compositor.CreateEffectFactory(arithmeticComposit, new string[] { "Blur.BlurAmount", "Mixer.Source1Amount", "Mixer.Source2Amount" });
-
-            var brush = factory.CreateBrush();
-
-            brush.Properties.InsertScalar("Blur.BlurAmount", 0.0f);
-            brush.Properties.InsertScalar("Mixer.Source1Amount", 1.0f);
-            brush.Properties.InsertScalar("Mixer.Source2Amount", 0.0f);
-
-            return brush;
+                m_rootVisual.Properties.InsertScalar(BlurAmountProperty, (float)value);
+            }
         }
-    }
 
-
-
-    class BackDrop2 : Control
-    {
-        Compositor m_compositor;
-        SpriteVisual m_blurVisual;
-        SpriteVisual m_shadowVisual;
-        CompositionEffectBrush m_blurBrush;
-        ContainerVisual m_container;
+        public Color TintColor
+        {
+            get
+            {
+                Color value;
+                m_rootVisual.Properties.TryGetColor("TintColor", out value);
+                return value;
+            }
+            set
+            {
+                if (!m_setUpExpressions)
+                {
+                    m_blurBrush.Properties.InsertColor("Color.Color", value);
+                }
+                m_rootVisual.Properties.InsertColor(TintColorProperty, value);
+            }
+        }
 
         public CompositionPropertySet VisualProperties
         {
             get
             {
-                return m_blurVisual.Properties;
+                if (!m_setUpExpressions)
+                {
+                    SetUpPropertySetExpressions();
+                }
+                return m_rootVisual.Properties;
             }
         }
 
@@ -246,31 +105,6 @@ namespace MusicFlow.Model
             }
         }
 
-        public BackDrop2()
-        {
-            var myBackingVisual = ElementCompositionPreview.GetElementVisual(this as UIElement);
-            m_compositor = myBackingVisual.Compositor;
-            m_blurBrush = BuildColoredBlurBrush();
-            m_blurBrush.SetSourceParameter("source", m_compositor.CreateDestinationBrush());
-
-            m_blurVisual = m_compositor.CreateSpriteVisual();
-            m_blurVisual.Brush = m_blurBrush;
-
-            m_blurVisual.Properties.InsertScalar("BlurValue", 0.0f);
-            m_blurVisual.Properties.InsertScalar("FadeValue", 0.0f);
-
-            //SetupPropertySetExpression();
-
-            m_container = m_compositor.CreateContainerVisual();
-            m_container.Children.InsertAtTop(m_blurVisual);
-
-            //CreateDropshadow();
-
-            ElementCompositionPreview.SetElementChildVisual(this as UIElement, m_container);
-            this.Loading += OnLoading;
-            this.Unloaded += OnUnloaded;
-        }
-
         private void OnLoading(FrameworkElement sender, object args)
         {
             this.SizeChanged += OnSizeChanged;
@@ -282,64 +116,56 @@ namespace MusicFlow.Model
             this.SizeChanged -= OnSizeChanged;
         }
 
-        private void CreateDropshadow()
-        {
-            m_shadowVisual = m_compositor.CreateSpriteVisual();
-
-            var theshadow = m_compositor.CreateDropShadow();
-            theshadow.BlurRadius = 32.0f;
-            m_shadowVisual.Shadow = theshadow;
-
-            m_container.Children.InsertAtBottom(m_shadowVisual);
-        }       
 
         private void OnSizeChanged(object sender, Windows.UI.Xaml.SizeChangedEventArgs e)
         {
             if (m_blurVisual != null)
             {
-                var sharedSize = new System.Numerics.Vector2((float)this.ActualWidth, (float)this.ActualHeight);
-                m_blurVisual.Size = sharedSize;
+                m_blurVisual.Size = new System.Numerics.Vector2((float)this.ActualWidth, (float)this.ActualHeight);
             }
+        }
 
-            if (m_shadowVisual != null)
-            {
-                m_shadowVisual.Size = new Vector2((float)this.ActualWidth, 4.0f);
-                m_shadowVisual.Offset = new Vector3(0.0f, ((float)this.ActualHeight - 1), 0.0f);
-            }
-        }        
-
-        private CompositionEffectBrush BuildColoredBlurBrush()
+        private void SetUpPropertySetExpressions()
         {
-            var gaussianBlur = new GaussianBlurEffect
+            m_setUpExpressions = true;
+
+            var exprAnimation = Compositor.CreateExpressionAnimation();
+            exprAnimation.Expression = $"sourceProperties.{BlurAmountProperty}";
+            exprAnimation.SetReferenceParameter("sourceProperties", m_rootVisual.Properties);
+
+            m_blurBrush.Properties.StartAnimation("Blur.BlurAmount", exprAnimation);
+
+            exprAnimation.Expression = $"sourceProperties.{TintColorProperty}";
+
+            m_blurBrush.Properties.StartAnimation("Color.Color", exprAnimation);
+        }
+
+
+        private CompositionEffectBrush BuildBlurBrush()
+        {
+            GaussianBlurEffect blurEffect = new GaussianBlurEffect()
             {
                 Name = "Blur",
-                Source = new CompositionEffectSourceParameter("source"),
-                BlurAmount = 50.0f,
+                BlurAmount = 0.0f,
                 BorderMode = EffectBorderMode.Hard,
                 Optimization = EffectOptimization.Speed
             };
 
-            var colorEffect = new ColorSourceEffect
+            blurEffect.Source = new CompositionEffectSourceParameter("source");
+
+            BlendEffect effect = new BlendEffect
             {
-                Name = "ColorSource2",
-                Color = Colors.DarkGray
+                Foreground = new ColorSourceEffect { Name = "Color", Color = Colors.Transparent },
+                Background = blurEffect,
+                Mode = BlendEffectMode.Multiply
             };
 
-            var blendEffect = new BlendEffect
-            {
-                Mode = BlendEffectMode.Multiply,
+            var factory = Compositor.CreateEffectFactory(
+                effect,
+                new[] { "Blur.BlurAmount", "Color.Color" }
+                );
 
-                Background = gaussianBlur,
-                Foreground = colorEffect
-            };
-
-            var factory = m_compositor.CreateEffectFactory(blendEffect);
-
-            var brush = factory.CreateBrush();
-
-            return brush;
+            return factory.CreateBrush();
         }
-
-       
     }
 }

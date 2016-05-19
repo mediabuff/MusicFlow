@@ -54,6 +54,9 @@ namespace MusicFlow.Views
             (App.Current as App).ScrollPosition = SC.VerticalOffset;
         }
 
+
+        //Gridview
+
         private void albumView_ItemClick(object sender, ItemClickEventArgs e)
         {
             var clickedItem = (Song)e.ClickedItem;
@@ -86,14 +89,7 @@ namespace MusicFlow.Views
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             var song = (sender as Button).DataContext as Song;
-
-            var x = mp.MusicList.Where(i => i.Album == song.Album).ToList();
-
-            MyMediaPlayer.nowPlayingList.Clear();
-            foreach (var ss in x)
-                MyMediaPlayer.nowPlayingList.AddLast(ss);
-            MyMediaPlayer.playSong(x[0]);
-            mp.updateNPList();
+            MyMediaPlayer.playAlbum(song.Album);
         }
 
 
@@ -101,7 +97,7 @@ namespace MusicFlow.Views
         private void albumView_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
         {
             var SelectedSong = e.Items[0] as Song;
-            e.Data.SetData(StandardDataFormats.Text, SelectedSong.Album);
+            e.Data.SetText(SelectedSong.ToString()+"albm");
             e.Data.RequestedOperation = DataPackageOperation.Copy;
         }
 
@@ -119,29 +115,35 @@ namespace MusicFlow.Views
             var item = args.Item as Song;
 
             if (!args.InRecycleQueue)
+            {
+
                 args.ItemContainer.Loaded += ItemConainer_Loaded;
+                //
+                //Resize animation
+                //
+                var visual = ElementCompositionPreview.GetElementVisual(args.ItemContainer);
+                var comp = visual.Compositor;
 
-            
-            //
-            //Resize animation
-            //
-            //var visual = ElementCompositionPreview.GetElementVisual(args.ItemContainer);
-            //var comp = visual.Compositor;
+                var offsetAnimation = comp.CreateVector3KeyFrameAnimation();
+                offsetAnimation.InsertExpressionKeyFrame(1.0f, "this.FinalValue");
+                offsetAnimation.Duration = TimeSpan.FromMilliseconds(300);
+                offsetAnimation.Target = "Offset";
+                var aniGroup = comp.CreateAnimationGroup();
+                aniGroup.Add(offsetAnimation);
 
-            //var offsetAnimation = comp.CreateVector3KeyFrameAnimation();
-            //offsetAnimation.InsertExpressionKeyFrame(1.0f, "this.FinalValue");
-            //offsetAnimation.Duration = TimeSpan.FromMilliseconds(450);
-            //var aniGroup = comp.CreateAnimationGroup();
-            //aniGroup.Add("Offset", offsetAnimation);
+                var implicitAnimationMap = comp.CreateImplicitAnimationCollection();
+                implicitAnimationMap.Add("Offset", aniGroup);
 
-            //var implicitAnimationMap = comp.CreateImplicitAnimationMap();
-            //implicitAnimationMap.Add("Offset", aniGroup);
+                visual.ImplicitAnimations = implicitAnimationMap;
+            }
+                
+           
 
-            //visual.ImplicitAnimations = implicitAnimationMap;
+           
 
             args.Handled = true;
         }
-        
+
         private void ItemConainer_Loaded(object sender, RoutedEventArgs e)
         {
             var itemPanel = albumView.ItemsPanelRoot as ItemsWrapGrid;
@@ -158,14 +160,7 @@ namespace MusicFlow.Views
                 itemVisual.Size = new Vector2(width, height);
                 itemVisual.CenterPoint = new Vector3(width / 2, height / 2, 0f);
                 itemVisual.Opacity = 0.0f;
-                //itemVisual.Offset = new Vector3(0, 100, 0);
-
-                //KeyFrameAnimation offsetAnimation = _compositor.CreateScalarKeyFrameAnimation();
-                //offsetAnimation.InsertExpressionKeyFrame(0f, "70");
-                //offsetAnimation.InsertExpressionKeyFrame(1f, "0");
-                //offsetAnimation.Duration = TimeSpan.FromMilliseconds(500);
-                //offsetAnimation.DelayTime = TimeSpan.FromMilliseconds(itemIndex * 50);
-
+                
                 Vector3KeyFrameAnimation scalAnimation = _compositor.CreateVector3KeyFrameAnimation();
                 scalAnimation.InsertKeyFrame(0f, new Vector3(0.9f, 0.9f, .9f));
                 scalAnimation.InsertKeyFrame(1f, new Vector3(1f, 1f, 0f));
@@ -178,7 +173,6 @@ namespace MusicFlow.Views
                 fadeAnimation.Duration = TimeSpan.FromMilliseconds(600);
                 fadeAnimation.DelayTime = TimeSpan.FromMilliseconds((itemIndex - itemPanel.FirstVisibleIndex) * 20);
 
-                //itemVisual.StartAnimation("Offset.Y", offsetAnimation);
                 itemVisual.StartAnimation("Scale", scalAnimation);
                 itemVisual.StartAnimation("Opacity", fadeAnimation);
             }

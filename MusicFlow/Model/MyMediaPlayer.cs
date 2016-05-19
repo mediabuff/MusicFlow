@@ -26,7 +26,16 @@ namespace MusicFlow.Model
             mp.AutoPlay = true;
             mp.MediaEnded += MediaEnded;
             mp.SystemMediaTransportControls.ButtonPressed += smtcButtonPressed;
-            mp.AudioCategory = MediaPlayerAudioCategory.Media;
+            mp.AudioCategory = MediaPlayerAudioCategory.Media;           
+            //mp.PositionChanged += Mp_PositionChanged;
+            Windows.Media.Playback.MediaPlaybackList
+        }       
+
+        private void Mp_PositionChanged(MediaPlayer sender, object args)
+        {
+            var mainpage = (Window.Current.Content as Frame).Content as MainPage;
+            mainpage.playerPosition = mp.Position.TotalMilliseconds;
+            mainpage.totalTime = mp.NaturalDuration.TotalMilliseconds;
         }
 
         private void MediaEnded(MediaPlayer sender, object args)
@@ -53,9 +62,7 @@ namespace MusicFlow.Model
             updateSMTC(ci);
             MainPage mainpage = (Window.Current.Content as Frame).Content as MainPage;
             mainpage.PlayButton.Content = "";
-            mainpage.setupMediaPlayer(ci.AlbumCover, ci.Title, ci.Album);
-            mainpage.bgImage.Source = new BitmapImage(new Uri(ci.AlbumCover));
-            mainpage.animateBackGround();
+            mainpage.setupMediaPlayer(ci.AlbumCover, ci.Title, ci.Album);           
         }
 
         public static async void updateSMTC(Song s1)
@@ -69,6 +76,16 @@ namespace MusicFlow.Model
             smtc.DisplayUpdater.Update();
         }
 
+        public static void playAlbum(string s1)
+        {
+            var mp = (Window.Current.Content as Frame).Content as MainPage;
+            var x = mp.MusicList.Where(i => i.Album == s1).ToList();
+            MyMediaPlayer.nowPlayingList.Clear();
+            foreach (var ss in x)
+                MyMediaPlayer.nowPlayingList.AddLast(ss);
+            MyMediaPlayer.playSong(x[0]);
+            mp.updateNPList();
+        }
 
         //Button Events
         public static void PlayPause()

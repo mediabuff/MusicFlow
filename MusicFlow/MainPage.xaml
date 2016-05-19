@@ -19,81 +19,78 @@
         </Storyboard>
     </Page.Resources>
 
-    <Grid Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-        <Image x:FieldModifier="public" Name="bgImage" Source="ms-appx:///Assets/bg.jpg" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="UniformToFill" Opacity="1" />
-        <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="Black" Opacity=".7" />
-        <Model:BackDrop2 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-
-        <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
-            <ProgressBar Name="Progressbar" Margin="0,8,0,0" IsIndeterminate="True" ShowPaused="True" Background="#00000000" />
-            <TextBlock Name="ProgressTextBlock" Text="" Margin="0,12,0,0" HorizontalAlignment="Center" />
-        </StackPanel>
-
-        <Frame Name="MainFrame" Margin="0,0,0,72" />
-        <Grid Height="72" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
-            <StackPanel 
-                Orientation="Horizontal" 
-                Margin="4,0,0,0" 
-                VerticalAlignment="Center"
-                HorizontalAlignment="Left"
-                AllowDrop="True"
-                DragOver="StackPanel_DragOver"
-                Drop="StackPanel_Drop" Background="#00000000">
-                <Image Name="npCoverImage" Height="66" Width="66" RenderTransformOrigin="0.5,0.5">
-                    <Image.Projection>
-                        <PlaneProjection />
-                    </Image.Projection>
-                    <Image.RenderTransform>
-                        <CompositeTransform />
-                    </Image.RenderTransform>
-                </Image>
-                <StackPanel Name="npText" Orientation="Vertical" Width="240" Margin="12,0,0,0" VerticalAlignment="Center">
-                    <StackPanel.Projection>
-                        <PlaneProjection />
-                    </StackPanel.Projection>
-                    <StackPanel.RenderTransform>
-                        <CompositeTransform />
-                    </StackPanel.RenderTransform>
-                    <TextBlock Name="npTitleTextBlock" Margin="0,0,0,12" />
-                    <TextBlock Name="npAlbumTextBlock" />
-                </StackPanel>
-            </StackPanel >
-            <StackPanel Orientation="Horizontal" Width="200" HorizontalAlignment="Right">
-                <Button Name="PreviousButton" Content="&#xE100;" x:FieldModifier="public" FontFamily="Segoe MDL2 Assets" Width="40" Height="40" Click="PreviousButton_Click" />
-                <Button Name="PlayButton" Content="&#xE102;" x:FieldModifier="public" FontFamily="Segoe MDL2 Assets" Width="40" Height="40" Click="PlayButton_Click" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                <Button Name="NextButton" Content="&#xE101;" x:FieldModifier="public" FontFamily="Segoe MDL2 Assets" Width="40" Height="40" Click="NextButton_Click" />
-                <Button Name="ListButton" Content="&#xE142;" x:FieldModifier="public" FontFamily="Segoe MDL2 Assets" Width="40" Height="40">
-                    <Button.Flyout>
-                        <Flyout Placement="Top">
-                            <Flyout.FlyoutPresenterStyle>
-                                <Style TargetType="FlyoutPresenter">
-                                    <Setter Property="Background" Value="#CC070101" />
-                                    <Setter Property="BorderThickness" Value="0" />
-                                    <Setter Property="Margin" Value="0,0,0,20" />
-                                </Style>
-                            </Flyout.FlyoutPresenterStyle>
-                            <Grid MinHeight="500" MaxHeight="500">
-                                <TextBlock Text="Now playing" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="24" Height="40" Margin="12,0,0,0" />
-                                <ListView SelectionMode="None" IsItemClickEnabled="True" ItemClick="PlayListView_ItemClick" Name="PlayListView" Width="400" VerticalAlignment="Top" Margin="-12,48,-12,0">
-                                    <ListView.ItemTemplate>
-                                        <DataTemplate x:DataType="Model:Song">
-                                            <Grid Width="400" Height="28" ToolTipService.ToolTip="{x:Bind Title}">
-                                                <Rectangle Fill="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-                                                <RelativePanel Name="rp1">
-                                                    <TextBlock Name="TB1" Text="{x:Bind Title}" VerticalAlignment="Center" Margin="12,0,0,0" Width="210" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True" TextTrimming="CharacterEllipsis" />
-                                                    <TextBlock Name="TB2" Text="{x:Bind Artist}" Margin="12,0,40,0" RelativePanel.RightOf="TB1" Width="170" RelativePanel.AlignVerticalCenterWithPanel="True" TextTrimming="CharacterEllipsis" />
-                                                </RelativePanel>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ListView.ItemTemplate>
-                                </ListView>
-                            </Grid>
-                        </Flyout>
-                    </Button.Flyout>
-                </Button>
+    <Grid>
+        <Grid Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <Image x:FieldModifier="public" Name="bgImage"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Visibility="Visible"/>
+            <Model:BlurControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <Rectangle Fill="Black" Opacity=".7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                <ProgressBar Name="Progressbar" Margin="0,8,0,0" IsIndeterminate="True" ShowPaused="True" Background="#00000000" />
+                <TextBlock Name="ProgressTextBlock" Text="" Margin="0,12,0,0" HorizontalAlignment="Center" />
             </StackPanel>
-        </Grid>
 
+            <Frame Name="MainFrame" Margin="0,0,0,72" />
+            <Grid Height="72" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left">
+                    <Button Name="ListButton" Style="{StaticResource AddToPlayListButton}" Content="&#x0032;" x:FieldModifier="public" FontFamily="WingDings" FontSize="48" Width="62" Height="62" Margin="40,0,0,0" Background="Transparent" ToolTipService.ToolTip="Playlist">
+                        <Button.Flyout>
+                            <Flyout Placement="Top">
+                                <Flyout.FlyoutPresenterStyle>
+                                    <Style TargetType="FlyoutPresenter">
+                                        <Setter Property="Background" Value="#CC070101" />
+                                        <Setter Property="BorderThickness" Value="0" />
+                                        <Setter Property="Margin" Value="0,0,0,20" />
+                                    </Style>
+                                </Flyout.FlyoutPresenterStyle>
+                                <Grid MinHeight="500" MaxHeight="500">
+                                    <TextBlock Text="Now playing" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="24" Height="40" Margin="12,0,0,0" />
+                                    <ListView SelectionMode="None" IsItemClickEnabled="True" ItemClick="PlayListView_ItemClick" Name="PlayListView" Width="400" VerticalAlignment="Top" Margin="-12,48,-12,0">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate x:DataType="Model:Song">
+                                                <Grid Width="400" Height="28" ToolTipService.ToolTip="{x:Bind Title}">
+                                                    <Rectangle Fill="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                                    <RelativePanel Name="rp1">
+                                                        <TextBlock Name="TB1" Text="{x:Bind Title}" VerticalAlignment="Center" Margin="12,0,0,0" Width="210" RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True" TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Name="TB2" Text="{x:Bind Artist}" Margin="12,0,40,0" RelativePanel.RightOf="TB1" Width="170" RelativePanel.AlignVerticalCenterWithPanel="True" TextTrimming="CharacterEllipsis" />
+                                                    </RelativePanel>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                </Grid>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" AllowDrop="True" DragOver="StackPanel_DragOver" Drop="StackPanel_Drop" Background="#00000000">
+                    <Image Name="npCoverImage" Height="62" Width="62" RenderTransformOrigin="0.5,0.5">
+                        <Image.Projection>
+                            <PlaneProjection />
+                        </Image.Projection>
+                        <Image.RenderTransform>
+                            <CompositeTransform />
+                        </Image.RenderTransform>
+                    </Image>
+                    <StackPanel Name="npText" Orientation="Vertical" Width="240" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <StackPanel.Projection>
+                            <PlaneProjection />
+                        </StackPanel.Projection>
+                        <StackPanel.RenderTransform>
+                            <CompositeTransform />
+                        </StackPanel.RenderTransform>
+                        <TextBlock Name="npTitleTextBlock" Margin="0,4,0,4" />
+                        <TextBlock Name="npAlbumTextBlock" Margin="0,0,0,8" />
+                        <ProgressBar Name="npProgressBar" Height="4" Margin="0,0,0,4" />
+                    </StackPanel>
+                </StackPanel >
+                <StackPanel Orientation="Horizontal" Width="200" HorizontalAlignment="Right">
+                    <!--<Button Name="Temp" Content="sads" Click="Temp_Click" />-->
+                    <Button Name="PreviousButton" Style="{StaticResource AddToPlayListButton}" Content="&#xE100;" x:FieldModifier="public" FontFamily="Segoe MDL2 Assets" FontSize="20" Width="48" Height="48" Click="PreviousButton_Click" Background="Transparent" />
+                    <Button Name="PlayButton" Style="{StaticResource AddToPlayListButton}" Content="&#xE102;" x:FieldModifier="public" FontFamily="Segoe MDL2 Assets" FontSize="20" Width="48" Height="48" Click="PlayButton_Click" HorizontalAlignment="Center" VerticalAlignment="Center" Background="Transparent" />
+                    <Button Name="NextButton" Style="{StaticResource AddToPlayListButton}" Content="&#xE101;" x:FieldModifier="public" FontFamily="Segoe MDL2 Assets" FontSize="20" Width="48" Height="48" Click="NextButton_Click" Background="Transparent" />
+                </StackPanel>
+            </Grid>
+        </Grid>
     </Grid>
+    
 </Page>
