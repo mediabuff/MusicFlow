@@ -24,14 +24,10 @@ using Windows.ApplicationModel.DataTransfer;
 
 namespace MusicFlow.Views
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class AlbumView : Page
     {
-        ObservableCollection<Song> myMusic;
-        IEnumerable<Song> albumList;
-        private Compositor _compositor;
+        ObservableCollection<MusicItem> myMusic;
+        IEnumerable<MusicItem> albumList;        
         MainPage mp = (Window.Current.Content as Frame).Content as MainPage;
 
         public AlbumView()
@@ -43,7 +39,7 @@ namespace MusicFlow.Views
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {           
-            myMusic = (ObservableCollection<Song>)e.Parameter;
+            myMusic = (ObservableCollection<MusicItem>)e.Parameter;
             albumList = myMusic.GroupBy(i=>i.Album).Select(i=>i.FirstOrDefault()).OrderBy(i=>i.Album);
             
         }
@@ -59,7 +55,7 @@ namespace MusicFlow.Views
 
         private void albumView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            var clickedItem = (Song)e.ClickedItem;
+            var clickedItem = (MusicItem)e.ClickedItem;
             var al = clickedItem.Album;
             var selectedAlbum = myMusic.Where(i => i.Album == al).Select(i=>i);
             Frame.Navigate(typeof(AlbumDetail), selectedAlbum);
@@ -76,72 +72,38 @@ namespace MusicFlow.Views
         //Mouse hover play button
         private void albumgrid_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            var RelPan = sender as RelativePanel;
-            (RelPan.Children[2] as Grid).Visibility = Visibility.Visible;
+            var RelPan = sender as Grid;
+            (RelPan.Children[2] as Grid).Visibility = Visibility.Collapsed;
         }
 
         private void albumgrid_PointerExited(object sender, PointerRoutedEventArgs e)
         {
-            var RelPan = sender as RelativePanel;
+            var RelPan = sender as Grid;
             (RelPan.Children[2] as Grid).Visibility = Visibility.Collapsed;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var song = (sender as Button).DataContext as Song;
-            MyMediaPlayer.playAlbum(song.Album);
+            var song = (sender as Button).DataContext as MusicItem;
+            //MyMediaPlayer.playAlbum(song.Album);
         }
 
 
         //Drag and Drop
         private void albumView_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
         {
-            var SelectedSong = e.Items[0] as Song;
-            e.Data.SetText(SelectedSong.ToString()+"albm");
-            e.Data.RequestedOperation = DataPackageOperation.Copy;
+            //var SelectedSong = e.Items[0] as Song;
+            //e.Data.SetText(SelectedSong.ToString()+"albm");
+            //e.Data.RequestedOperation = DataPackageOperation.Copy;
         }
 
 
         //Animations
+        private Compositor _compositor;
+
         private void InitializeCompositor()
         {
             _compositor = ElementCompositionPreview.GetElementVisual(this).Compositor;
-        }
-
-        private void albumView_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
-        {
-            int index = args.ItemIndex;
-            var root = args.ItemContainer.ContentTemplateRoot as UserControl;
-            var item = args.Item as Song;
-
-            if (!args.InRecycleQueue)
-            {
-
-                args.ItemContainer.Loaded += ItemConainer_Loaded;
-                //
-                //Resize animation
-                //
-                var visual = ElementCompositionPreview.GetElementVisual(args.ItemContainer);
-                var comp = visual.Compositor;
-
-                var offsetAnimation = comp.CreateVector3KeyFrameAnimation();
-                offsetAnimation.InsertExpressionKeyFrame(1.0f, "this.FinalValue");
-                offsetAnimation.Duration = TimeSpan.FromMilliseconds(300);
-                offsetAnimation.Target = "Offset";
-                var aniGroup = comp.CreateAnimationGroup();
-                aniGroup.Add(offsetAnimation);
-
-                var implicitAnimationMap = comp.CreateImplicitAnimationCollection();
-                implicitAnimationMap.Add("Offset", aniGroup);
-
-                visual.ImplicitAnimations = implicitAnimationMap;
-            }
-                
-           
-
-           
-
-            args.Handled = true;
         }
 
         private void ItemConainer_Loaded(object sender, RoutedEventArgs e)
@@ -149,10 +111,9 @@ namespace MusicFlow.Views
             var itemPanel = albumView.ItemsPanelRoot as ItemsWrapGrid;
             var itemContainer = sender as GridViewItem;
             var itemIndex = albumView.IndexFromContainer(itemContainer);
-
-
             if (itemIndex >= itemPanel.FirstVisibleIndex && itemIndex <= itemPanel.LastVisibleIndex)
             {
+                //Loading animation
                 var itemVisual = ElementCompositionPreview.GetElementVisual(itemContainer);
 
                 float width = 200;
@@ -179,6 +140,35 @@ namespace MusicFlow.Views
             itemContainer.Loaded -= ItemConainer_Loaded;
         }
 
+        private void AlbumView_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        {
+            int index = args.ItemIndex;
+            var root = args.ItemContainer.ContentTemplateRoot as UserControl;
+            
+
+            if (!args.InRecycleQueue)
+            {
+                args.ItemContainer.Loaded += ItemConainer_Loaded;
+
+                //Resize animation
+                var visual = ElementCompositionPreview.GetElementVisual(args.ItemContainer);
+                var comp = visual.Compositor;
+
+                var offsetAnimation = comp.CreateVector3KeyFrameAnimation();
+                offsetAnimation.InsertExpressionKeyFrame(1.0f, "this.FinalValue");
+                offsetAnimation.Duration = TimeSpan.FromMilliseconds(300);
+                offsetAnimation.Target = "Offset";
+                var aniGroup = comp.CreateAnimationGroup();
+                aniGroup.Add(offsetAnimation);
+
+                var implicitAnimationMap = comp.CreateImplicitAnimationCollection();
+                implicitAnimationMap.Add("Offset", aniGroup);
+
+                visual.ImplicitAnimations = implicitAnimationMap;
+            }
+            args.Handled = true;
+        }
+
 
         //Helper methos
         DependencyObject FindFirstChild<T>(DependencyObject initial)
@@ -202,7 +192,6 @@ namespace MusicFlow.Views
             }
 
         }
-
-       
+        
     }
 }

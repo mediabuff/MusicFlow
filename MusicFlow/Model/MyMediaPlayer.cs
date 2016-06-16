@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Media;
+using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
@@ -14,142 +17,169 @@ namespace MusicFlow.Model
 {
     class MyMediaPlayer
     {
-        public static MediaPlayer mp;
-        public static LinkedList<Song> nowPlayingList;
-        public static Song currentSong;
+        static MyMediaPlayer instance;
 
+        public static MyMediaPlayer Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new MyMediaPlayer();                    
+                }
+                return instance;
+            }
+        }
+
+        public MediaPlayer Player { get; private set; }
+
+      
         public MyMediaPlayer()
         {
-            mp = new MediaPlayer();
-            nowPlayingList = new LinkedList<Song>();
-            currentSong = new Song();
-            mp.AutoPlay = true;
-            mp.MediaEnded += MediaEnded;
-            mp.SystemMediaTransportControls.ButtonPressed += smtcButtonPressed;
-            mp.AudioCategory = MediaPlayerAudioCategory.Media;           
-            //mp.PositionChanged += Mp_PositionChanged;
-            Windows.Media.Playback.MediaPlaybackList
-        }       
-
-        private void Mp_PositionChanged(MediaPlayer sender, object args)
-        {
-            var mainpage = (Window.Current.Content as Frame).Content as MainPage;
-            mainpage.playerPosition = mp.Position.TotalMilliseconds;
-            mainpage.totalTime = mp.NaturalDuration.TotalMilliseconds;
+            Player = new MediaPlayer();
+            Player.AutoPlay = false;
+            Player.Source = new MediaPlaybackList();
+            (Player.Source as MediaPlaybackList).CurrentItemChanged += MyMediaPlayer_CurrentItemChanged;
         }
 
-        private void MediaEnded(MediaPlayer sender, object args)
+        private async void MyMediaPlayer_CurrentItemChanged(MediaPlaybackList sender, CurrentMediaPlaybackItemChangedEventArgs args)
         {
-            if (currentSong != nowPlayingList.Last.Value)
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                playNextSong();
-            }
-
+                if (sender.CurrentItem != null)
+                {
+                    MainPage mp = (Window.Current.Content as Frame).Content as MainPage;
+                    mp.animateBackGround(sender.CurrentItem.Source.CustomProperties["CoverImagePath"] as string);
+                }
+                
+            });
         }
 
-        private void smtcButtonPressed(SystemMediaTransportControls sender, SystemMediaTransportControlsButtonPressedEventArgs args)
-        {
-            
-        }
 
-        
+
+
+
+
+
+
+        //public MyMediaPlayer()
+        //{
+        //    //MediaPlayer = new MediaPlayer();
+        //    //nowPlayingList = new LinkedList<Song>();
+        //    //currentSong = new Song();
+        //    //MediaPlayer.AutoPlay = true;
+        //    //MediaPlayer.MediaEnded += MediaEnded;
+        //    //mediaplayer.SystemMediaTransportControls.ButtonPressed += smtcButtonPressed;
+        //    //mediaplayer.AudioCategory = MediaPlayerAudioCategory.Media;            
+        //}       
+
+        //private void MediaEnded(MediaPlayer sender, object args)
+        //{
+        //    if (currentSong != NowPlayingList.Last.Value)
+        //    {
+        //        playNextSong();
+        //    }
+
+        //}
+
+        //private void smtcButtonPressed(SystemMediaTransportControls sender, SystemMediaTransportControlsButtonPressedEventArgs args)
+        //{
+        //}
+
+
         //Play Song
-        public static async void playSong(Song ci)
-        {
-            mp.SetFileSource(await StorageFile.GetFileFromPathAsync(ci.SongFile));
-            mp.Play();            
-            currentSong = ci;
-            updateSMTC(ci);
-            MainPage mainpage = (Window.Current.Content as Frame).Content as MainPage;
-            mainpage.PlayButton.Content = "";
-            mainpage.setupMediaPlayer(ci.AlbumCover, ci.Title, ci.Album);           
-        }
+        //public void playSong(MediaPlaybackItem ci)
+        //{            
+        //    MediaPlayer.Source = ci;
+        //    MediaPlayer.Play();                 
+        //    //updateSMTC(ci);
+        //    //MainPage mainpage = (Window.Current.Content as Frame).Content as MainPage;
+        //    //mainpage.PlayButton.Content = "";
+        //    //.setupMediaPlayer(ci.AlbumCover, ci.Title, ci.Album);           
+        //}
 
-        public static async void updateSMTC(Song s1)
-        {
-            var smtc = mp.SystemMediaTransportControls;
-            var f = await StorageFile.GetFileFromPathAsync(s1.SongFile);
-            await smtc.DisplayUpdater.CopyFromFileAsync(Windows.Media.MediaPlaybackType.Music, f);
-            smtc.IsNextEnabled = true;
-            smtc.IsFastForwardEnabled = true;
-            smtc.IsStopEnabled = true;
-            smtc.DisplayUpdater.Update();
-        }
+        //public async void updateSMTC(MusicItem s1)
+        //{
+        //    var smtc = MediaPlayer.SystemMediaTransportControls;
+        //    var f = await StorageFile.GetFileFromPathAsync(s1.FilePath);
+        //    await smtc.DisplayUpdater.CopyFromFileAsync(Windows.Media.MediaPlaybackType.Music, f);
+        //    smtc.IsNextEnabled = true;
+        //    smtc.IsFastForwardEnabled = true;
+        //    smtc.IsStopEnabled = true;
+        //    smtc.DisplayUpdater.Update();
+        //}
 
-        public static void playAlbum(string s1)
-        {
-            var mp = (Window.Current.Content as Frame).Content as MainPage;
-            var x = mp.MusicList.Where(i => i.Album == s1).ToList();
-            MyMediaPlayer.nowPlayingList.Clear();
-            foreach (var ss in x)
-                MyMediaPlayer.nowPlayingList.AddLast(ss);
-            MyMediaPlayer.playSong(x[0]);
-            mp.updateNPList();
-        }
+        //public void playAlbum(string s1)
+        //{
+        //    var mp = (Window.Current.Content as Frame).Content as MainPage;
+        //    var x = mp.MusicList.Where(i => i.Album == s1).ToList();
+        //    NowPlayingList.Clear();
+        //    foreach (var ss in x)
+        //        NowPlayingList.AddLast(ss);
+        //    playSong(x[0]);
+        //    mp.updateNPList();
+        //}
 
         //Button Events
-        public static void PlayPause()
-        {
-            MainPage mainpage = (Window.Current.Content as Frame).Content as MainPage;
-            if (mp.CurrentState == MediaPlayerState.Playing)
-            {
-                mp.Pause();
-                mainpage.PlayButton.Content = "";
-            }
-            else if (mp.CurrentState == MediaPlayerState.Paused)
-            {
-                mp.Play();
-                mainpage.PlayButton.Content = "";
-            }
-        }
+        //public  void PlayPause()
+        //{
+        //    if (mediaPlayer.CurrentState == MediaPlayerState.Playing)
+        //    {
+        //        mediaPlayer.Pause();
+        //    }
+        //    else if (mediaPlayer.CurrentState == MediaPlayerState.Paused)
+        //    {
+        //        mediaPlayer.Play();
+        //    }
+        //}
 
-        public static void playNextSong()
-        {
-            if (currentSong.Length != null)
-            {
-                if (nowPlayingList.Find(currentSong).Value != nowPlayingList.Last.Value)
-                {
-                    currentSong = nowPlayingList.Find(currentSong).Next.Value;
-                    playSong(currentSong);
-                }
-                else if (nowPlayingList.Count() == 1 || nowPlayingList.Find(currentSong).Value == nowPlayingList.Last.Previous.Value)
-                {
-                    MainPage mainpage = (Window.Current.Content as Frame).Content as MainPage;
-                    mainpage.disableNextButton();
-                }
-            }
-        }
+        //public void playNextSong()
+        //{
+        //    if (currentSong.Length != null)
+        //    {
+        //        if (nowPlayingList.Find(currentSong).Value != nowPlayingList.Last.Value)
+        //        {
+        //            currentSong = nowPlayingList.Find(currentSong).Next.Value;
+        //            playSong(currentSong);
+        //        }
+        //        else if (nowPlayingList.Count() == 1 || nowPlayingList.Find(currentSong).Value == nowPlayingList.Last.Previous.Value)
+        //        {
+        //            MainPage mainpage = (Window.Current.Content as Frame).Content as MainPage;
+        //            mainpage.disableNextButton();
+        //        }
+        //    }
+        //}
 
-        public static void playPreviousSong()
-        {
-            if (currentSong.Length != null)
-            {
-                if (nowPlayingList.Find(currentSong).Value != nowPlayingList.First.Value)
-                {
-                    currentSong = nowPlayingList.Find(currentSong).Previous.Value;
-                    playSong(currentSong);
-                }
-                else if (nowPlayingList.Count() == 1 || nowPlayingList.Find(currentSong).Value == nowPlayingList.Last.Previous.Value)
-                {
-                    MainPage mainpage = (Window.Current.Content as Frame).Content as MainPage;
-                    mainpage.disableNextButton();
-                }
-            }            
-        }
+        //public void playPreviousSong()
+        //{
+        //    if (currentSong.Length != null)
+        //    {
+        //        if (nowPlayingList.Find(currentSong).Value != nowPlayingList.First.Value)
+        //        {
+        //            currentSong = nowPlayingList.Find(currentSong).Previous.Value;
+        //            playSong(currentSong);
+        //        }
+        //        else if (nowPlayingList.Count() == 1 || nowPlayingList.Find(currentSong).Value == nowPlayingList.Last.Previous.Value)
+        //        {
+        //            MainPage mainpage = (Window.Current.Content as Frame).Content as MainPage;
+        //            mainpage.disableNextButton();
+        //        }
+        //    }            
+        //}
 
-        public static void addToNowPlaying(Song s)
-        {
-            MainPage mainpage = (Window.Current.Content as Frame).Content as MainPage;
-            nowPlayingList.AddLast(s);
-            if(nowPlayingList.Count() == 1)
-            {
-                playSong(s);
-                mainpage.disableNextButton();
-            }
-            else
-            {
-                mainpage.enableNextButton();
-            }
-        }         
+        //public void addToNowPlaying(Song s)
+        //{
+        //    MainPage mainpage = (Window.Current.Content as Frame).Content as MainPage;
+        //    nowPlayingList.AddLast(s);
+        //    if(nowPlayingList.Count() == 1)
+        //    {
+        //        playSong(s);
+        //        mainpage.disableNextButton();
+        //    }
+        //    else
+        //    {
+        //        mainpage.enableNextButton();
+        //    }
+        //}         
     }
 }
