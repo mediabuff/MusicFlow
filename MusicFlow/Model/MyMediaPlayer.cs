@@ -38,8 +38,10 @@ namespace MusicFlow.Model
         {
             Player = new MediaPlayer();
             Player.AutoPlay = false;
+            Player.Pause();
             Player.Source = new MediaPlaybackList();
             (Player.Source as MediaPlaybackList).CurrentItemChanged += MyMediaPlayer_CurrentItemChanged;
+            Player.SystemMediaTransportControls.IsPauseEnabled = true;
         }
 
         private async void MyMediaPlayer_CurrentItemChanged(MediaPlaybackList sender, CurrentMediaPlaybackItemChangedEventArgs args)
@@ -48,8 +50,11 @@ namespace MusicFlow.Model
             {
                 if (sender.CurrentItem != null)
                 {
+                    var cover = sender.CurrentItem.Source.CustomProperties["CoverImagePath"] as string;
+                    var title = sender.CurrentItem.Source.CustomProperties["Title"] as string;
                     MainPage mp = (Window.Current.Content as Frame).Content as MainPage;
-                    mp.animateBackGround(sender.CurrentItem.Source.CustomProperties["CoverImagePath"] as string);
+                    mp.animateBackGround(cover);
+                    mp.animateMeidaTransportControl(title,cover);
                 }
                 
             });

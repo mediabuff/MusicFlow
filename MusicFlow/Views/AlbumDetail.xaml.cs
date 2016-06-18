@@ -53,9 +53,13 @@ namespace MusicFlow.Views
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            songs = e.Parameter as IEnumerable<MusicItem>;
-            song1 =  songs.FirstOrDefault();
-            setupVisibility();   
+            var album = e.Parameter as string;
+            //await Task.Run(() => {
+                songs = mp.MusicList.Where(i => i.Album == album).Select(i => i);
+                song1 = songs.FirstOrDefault();
+            //});            
+            
+            //setupVisibility();
         }
 
         private  void ListView_ItemClick(object sender, ItemClickEventArgs e)
@@ -160,6 +164,22 @@ namespace MusicFlow.Views
             itemContainer.Loaded -= ItemConainer_Loaded;            
         }
 
+        private void AlbumInfo_Loaded(object sender, RoutedEventArgs e)
+        {
+            var grid = sender as Grid;
+            var visual = ElementCompositionPreview.GetElementVisual(grid);
+            var compositor = visual.Compositor;
+
+            visual.Size = new Vector2((float)grid.ActualWidth, (float)grid.ActualHeight);
+            visual.CenterPoint = new Vector3((float)grid.ActualWidth / 2,(float)grid.ActualHeight/2,0f);
+
+            var animation = compositor.CreateVector3KeyFrameAnimation();
+            animation.InsertKeyFrame(0f, new Vector3(.9f));
+            animation.InsertKeyFrame(1f, new Vector3(1f));
+            animation.Duration = TimeSpan.FromMilliseconds(300);
+            visual.StartAnimation("Scale", animation);
+        }
+
 
         //Helper methods
 
@@ -170,5 +190,7 @@ namespace MusicFlow.Views
                 dot.Visibility = Visibility.Collapsed;
             }
         }
+
+        
     }
 }

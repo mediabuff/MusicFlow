@@ -17,25 +17,29 @@
                 </DoubleAnimation.EasingFunction>
             </DoubleAnimation>
         </Storyboard>
+        
     </Page.Resources>
 
     <Grid Name="bgGrid">
         <Grid Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-            <Image x:FieldModifier="public" Name="bgImage" HorizontalAlignment="Left" VerticalAlignment="Top"  Stretch="UniformToFill" Visibility="Visible"  />
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <Image x:FieldModifier="public" Name="bgImage" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="UniformToFill" Visibility="Visible" Grid.RowSpan="2"/>
             <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <ProgressBar Name="Progressbar" Margin="0,8,0,0" IsIndeterminate="True" ShowPaused="True" Background="#00000000" />
                 <TextBlock Name="ProgressTextBlock" Text="" Margin="0,4,0,0" HorizontalAlignment="Center" />
             </StackPanel>
-            <Frame Name="MainFrame" Margin="0,0,0,72" />
-            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+            <Frame Name="MainFrame"  />
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Grid.Row="1">
                 <!--<MediaPlayerElement Name="mpElement" AreTransportControlsEnabled="True">
                     <MediaPlayerElement.TransportControls>-->
-                <MediaTransportControls Name="MainPageTransportControls" IsNextTrackButtonVisible="True" IsPreviousTrackButtonVisible="True" IsFullWindowButtonVisible="False" IsZoomButtonVisible="False" IsZoomEnabled="False" IsCompact="True" />
+                <Model:MusicFlowMediaTransportControls x:Name="MainPageTransportControls" x:FieldModifier="Public" Style="{StaticResource MusicFlowMediaTransportControl}"  IsFullWindowButtonVisible="False" IsZoomButtonVisible="False" IsZoomEnabled="False" IsFullWindowEnabled="False" />
                 <!--</MediaPlayerElement.TransportControls>
                 </MediaPlayerElement>-->
             </Grid>
         </Grid>
     </Grid>
-    
+
 </Page>

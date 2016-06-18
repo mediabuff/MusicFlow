@@ -19,6 +19,10 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.Graphics.Effects;
 using Windows.ApplicationModel.DataTransfer;
+using System.Threading.Tasks;
+using Windows.UI.Xaml.Shapes;
+using Windows.ApplicationModel.Core;
+using Windows.UI.Core;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -41,7 +45,6 @@ namespace MusicFlow.Views
         {           
             myMusic = (ObservableCollection<MusicItem>)e.Parameter;
             albumList = myMusic.GroupBy(i=>i.Album).Select(i=>i.FirstOrDefault()).OrderBy(i=>i.Album);
-            
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -56,9 +59,7 @@ namespace MusicFlow.Views
         private void albumView_ItemClick(object sender, ItemClickEventArgs e)
         {
             var clickedItem = (MusicItem)e.ClickedItem;
-            var al = clickedItem.Album;
-            var selectedAlbum = myMusic.Where(i => i.Album == al).Select(i=>i);
-            Frame.Navigate(typeof(AlbumDetail), selectedAlbum);
+            Frame.Navigate(typeof(AlbumDetail), clickedItem.Album);
         }       
        
         private void albumView_Loaded(object sender, RoutedEventArgs e)
@@ -72,8 +73,8 @@ namespace MusicFlow.Views
         //Mouse hover play button
         private void albumgrid_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            var RelPan = sender as Grid;
-            (RelPan.Children[2] as Grid).Visibility = Visibility.Collapsed;
+            var grid = sender as Grid;
+            (grid.Children[2] as Grid).Visibility = Visibility.Visible;
         }
 
         private void albumgrid_PointerExited(object sender, PointerRoutedEventArgs e)

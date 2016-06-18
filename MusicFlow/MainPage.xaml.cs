@@ -15,6 +15,7 @@ using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
@@ -65,9 +66,7 @@ namespace MusicFlow
             mpElement.SetMediaPlayer(Player);
             mpElement.AreTransportControlsEnabled = true;
             mpElement.TransportControls = MainPageTransportControls;
-        }
-
-       
+        }       
 
 
         #region Music scanning Algorithm
@@ -221,7 +220,7 @@ namespace MusicFlow
 
 
         //Drag and drop
-        private async void StackPanel_Drop(object sender, DragEventArgs e)
+        private void StackPanel_Drop(object sender, DragEventArgs e)
         {
             
             //if (e.DataView.Contains(StandardDataFormats.Text))
@@ -247,7 +246,7 @@ namespace MusicFlow
             //}
         }
 
-        private async void StackPanel_DragOver(object sender, DragEventArgs e)
+        private void StackPanel_DragOver(object sender, DragEventArgs e)
         {
             //    e.AcceptedOperation = (e.DataView.Contains(StandardDataFormats.Text)) ? DataPackageOperation.Copy : DataPackageOperation.None;
             //    var def = e.GetDeferral();
@@ -350,6 +349,12 @@ namespace MusicFlow
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             setupBackgroundAnimations();
+        }
+
+        public void animateMeidaTransportControl(string title, string cover)
+        {
+            MainPageTransportControls.GetAlbumTitleTextbox().Text = title;
+            MainPageTransportControls.GetAlbumCoverImage().Source = new BitmapImage(new Uri(cover));
         }
 
         //Helper methods

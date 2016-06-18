@@ -45,6 +45,9 @@ namespace MusicFlow.Model
             var source = MediaSource.CreateFromStream(stream,file.ContentType);
             source.CustomProperties["FilePath"] = m.FilePath;
             source.CustomProperties["CoverImagePath"] = m.CoveImagePath;
+            source.CustomProperties["Title"] = m.Title;
+            source.CustomProperties["Artist"] = m.Artist;
+            source.CustomProperties["Album"] = m.Album;
             var item = new MediaPlaybackItem(source);
 
             var displayproperties = item.GetDisplayProperties();
@@ -72,8 +75,8 @@ namespace MusicFlow.Model
         {
             var media = await ToMediaItem(m);
             NowPlayingList.Items.Add(media);
-            Player.Pause();
             Player.Play();
+            Player.SystemMediaTransportControls.IsNextEnabled = true;
             
         }
     }
