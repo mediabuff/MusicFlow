@@ -33,9 +33,16 @@
             </StackPanel>
             <Frame Name="MainFrame"  />
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Grid.Row="1">
+                <Button Name="b1">
+                    <Button.Flyout>
+                        <Flyout>
+                            <Grid></Grid>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
                 <!--<MediaPlayerElement Name="mpElement" AreTransportControlsEnabled="True">
                     <MediaPlayerElement.TransportControls>-->
-                <Model:MusicFlowMediaTransportControls x:Name="MainPageTransportControls" x:FieldModifier="Public" Style="{StaticResource MusicFlowMediaTransportControl}"  IsFullWindowButtonVisible="False" IsZoomButtonVisible="False" IsZoomEnabled="False" IsFullWindowEnabled="False" />
+                <Model:MusicFlowMediaTransportControls x:Name="MainPageTransportControls" x:FieldModifier="Public" Style="{StaticResource MusicFlowMediaTransportControl}"  IsFullWindowButtonVisible="False" IsZoomButtonVisible="False" IsZoomEnabled="False" IsFullWindowEnabled="False" Loaded="MainPageTransportControls_Loaded"/>
                 <!--</MediaPlayerElement.TransportControls>
                 </MediaPlayerElement>-->
             </Grid>

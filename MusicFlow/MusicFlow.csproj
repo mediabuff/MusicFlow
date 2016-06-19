@@ -105,10 +105,8 @@
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Model\BackDrop.cs" />
-    <Compile Include="Model\BlurControl.cs" />
-    <Compile Include="Model\ExtensionMethods.cs" />
     <Compile Include="Model\MusicFlowMediaTransportControls.cs" />
+    <Compile Include="Model\MusicHelper.cs" />
     <Compile Include="Model\MusicItem.cs" />
     <Compile Include="Model\MusicItemDurationConverter.cs" />
     <Compile Include="Model\MyMediaPlayer.cs" />
@@ -124,6 +122,9 @@
     </Compile>
     <Compile Include="Views\BlankPage1.xaml.cs">
       <DependentUpon>BlankPage1.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NowPlayingPlaylistView.xaml.cs">
+      <DependentUpon>NowPlayingPlaylistView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -211,6 +212,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\BlankPage1.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NowPlayingPlaylistView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

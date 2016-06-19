@@ -19,7 +19,7 @@ namespace MusicFlow.Model
     {
         static MyMediaPlayer instance;
 
-        public static MyMediaPlayer Instance
+        public static MyMediaPlayer Instance 
         {
             get
             {

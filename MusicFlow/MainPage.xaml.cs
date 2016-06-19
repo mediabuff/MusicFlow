@@ -1,26 +1,18 @@
 ﻿using Microsoft.Graphics.Canvas.Effects;
-using Microsoft.Graphics.Canvas.UI.Xaml;
 using Microsoft.UI.Composition.Toolkit;
 using MusicFlow.Model;
+using MusicFlow.Views;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
-using Windows.ApplicationModel.DataTransfer;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Media;
-using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
-using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Composition;
@@ -28,11 +20,7 @@ using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Hosting;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
@@ -42,8 +30,10 @@ namespace MusicFlow
     {
         public ObservableCollection<MusicItem> MusicList;
         public static MediaPlayerElement mpElement;
+
+        NowPlayingPlaylistView MainPageNowPlayingListView = new NowPlayingPlaylistView();
         MediaPlayer Player => MyMediaPlayer.Instance.Player;
-        MediaPlaybackList NowPlayingList
+        MediaPlaybackList NowPlayingList 
         {
             get { return Player.Source as MediaPlaybackList; }
             set { Player.Source = value; }
@@ -52,24 +42,19 @@ namespace MusicFlow
         public MainPage()
         {
             this.InitializeComponent();
-            mpElement = new MediaPlayerElement();
-            SystemNavigationManager.GetForCurrentView().BackRequested += BackRequested;
-            SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            setupTitleBar();           
+            SetTitleBar();
+            SetBackNavigation();
+            SetMediaTransportControls();
             await GetMusic();
             MainFrame.Navigate(typeof(Views.AlbumView), MusicList);
-            NowPlayingList = Player.Source as MediaPlaybackList;
-            mpElement.SetMediaPlayer(Player);
-            mpElement.AreTransportControlsEnabled = true;
-            mpElement.TransportControls = MainPageTransportControls;
-        }       
+        }
 
 
-        #region Music scanning Algorithm
+        #region Music scanning algorithm
 
         public async Task GetMusic()
         {
@@ -167,8 +152,7 @@ namespace MusicFlow
             ms.Dispose();
             return songlist;
         }
-
-       
+        
         private void Deletecache()
         {
             //var f1 = await ApplicationData.Current.LocalFolder.GetFileAsync("AlbumData.dat");
@@ -178,8 +162,15 @@ namespace MusicFlow
         }
         #endregion
 
+        #region Navigation + Titlebar colors
 
         //Back requested
+        void SetBackNavigation()
+        {
+            SystemNavigationManager.GetForCurrentView().BackRequested += BackRequested;
+            SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility = AppViewBackButtonVisibility.Visible;
+        }
+
         private void BackRequested(object sender, BackRequestedEventArgs e)
         {
             if (MainFrame.CanGoBack)
@@ -190,7 +181,7 @@ namespace MusicFlow
         }
 
         //Applyy Titlebar colors
-        private void setupTitleBar()
+        private void SetTitleBar()
         {
             var titlebar = ApplicationView.GetForCurrentView().TitleBar;
             Color black = Color.FromArgb(0xFF, 0x00, 0x00, 0x00);
@@ -208,18 +199,49 @@ namespace MusicFlow
             titlebar.ButtonHoverBackgroundColor = black;
         }
 
-        // MTC buttons
-        private void PlayListView_ItemClick(object sender, ItemClickEventArgs e)
+        #endregion
+
+        #region Media Transport Controls
+
+        void SetMediaTransportControls()
         {
-            var ci = e.ClickedItem as MusicItem;
-           // MyMediaPlayer.currentSong = ci;
-           // MyMediaPlayer.playSong(ci);
+            NowPlayingList = Player.Source as MediaPlaybackList;
+            mpElement = new MediaPlayerElement();
+            mpElement.SetMediaPlayer(Player);
+            mpElement.AreTransportControlsEnabled = true;
+            mpElement.TransportControls = MainPageTransportControls;
+            
         }
 
-       
+        //Attach flyout to playlist button
+        private void MainPageTransportControls_Loaded(object sender, RoutedEventArgs e)
+        {
+            var button = MainPageTransportControls.GetPlayListButton();
+            var f = new Flyout();
+            f.Content = MainPageNowPlayingListView;
+            f.FlyoutPresenterStyle = new Style(typeof(FlyoutPresenter));
+            f.FlyoutPresenterStyle.Setters.Add(new Setter(FlyoutPresenter.PaddingProperty, "0"));
+            button.Flyout = f;
+            button.Click += Button_Click;
+        }
 
+        //Update listview source
+        public void UpdateNowplayingListViewSource()
+        {
+            MainPageNowPlayingListView.UpdateSource(NowPlayingList.Items.ToList());
+        }
 
-        //Drag and drop
+        //Show flyout on buttonclick
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            button.Flyout.ShowAt(button);
+        }
+
+        #endregion
+
+        #region Drag and drop
+
         private void StackPanel_Drop(object sender, DragEventArgs e)
         {
             
@@ -266,8 +288,10 @@ namespace MusicFlow
             //    def.Complete();
         }
 
+        #endregion
 
-        //Animations
+        #region Animations
+
         Compositor compositor;
         Visual visual;
         SpriteVisual blurredVisual;
@@ -357,12 +381,17 @@ namespace MusicFlow
             MainPageTransportControls.GetAlbumCoverImage().Source = new BitmapImage(new Uri(cover));
         }
 
-        //Helper methods
+        #endregion
+
+        #region Helper methods
+
         Vector2 getBackgroundSize()
         {
             var x = RootGrid.ActualHeight > RootGrid.ActualWidth ? RootGrid.ActualHeight : RootGrid.ActualWidth;
             var v2 = new Vector2((float)x, (float)x);
             return v2;
         }
+
+        #endregion
     }
 }

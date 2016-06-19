@@ -16,9 +16,14 @@ namespace MusicFlow.Model
 
         protected override void OnApplyTemplate()
         {
-            var SongTitleTextBlock = GetTemplateChild("TitleTextBlock") as TextBlock;
-            SongTitleTextBlock.Text = "asdasd";
+            var nowplayingButton = GetPlayListButton();
+            nowplayingButton.Click += NowplayingButton_Click;
             base.OnApplyTemplate();
+        }
+
+        private void NowplayingButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+           
         }
 
         public TextBlock GetAlbumTitleTextbox()
@@ -30,6 +35,11 @@ namespace MusicFlow.Model
         {
             var image = GetTemplateChild("CoverImage") as Image;
             return image;
+        }
+        public AppBarButton GetPlayListButton()
+        {
+            var button = GetTemplateChild("NowPlayingListButton") as AppBarButton;
+            return button;
         }
     }
 }
