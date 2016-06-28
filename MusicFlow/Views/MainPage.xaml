@@ -1,0 +1,43 @@
+﻿<Page
+    x:Class="MusicFlow.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MusicFlow.Views" 
+    xmlns:Model="using:MusicFlow.Model" 
+    xmlns:Controls="using:MusicFlow.Controls" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Loaded="Page_Loaded"
+    SizeChanged="Page_SizeChanged">
+
+    <Grid Name="bgGrid">
+
+        <Grid Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <Image x:FieldModifier="public" Name="bgImage" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="UniformToFill" Visibility="Visible" Grid.RowSpan="2" />
+            <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                <ProgressBar Name="Progressbar" Margin="0,8,0,0" IsIndeterminate="True" ShowPaused="True" Background="#00000000" />
+                <TextBlock Name="ProgressTextBlock" Text="" Margin="0,4,0,0" HorizontalAlignment="Center" />
+            </StackPanel>
+            <Frame Name="MainFrame" />
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Grid.Row="1">
+                <Button Name="b1">
+                    <Button.Flyout>
+                        <Flyout>
+                            <Grid></Grid>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+                <!--<MediaPlayerElement Name="mpElement" AreTransportControlsEnabled="True">
+                    <MediaPlayerElement.TransportControls>-->
+                <Model:MusicFlowMediaTransportControls x:Name="MainPageTransportControls" x:FieldModifier="Public" Style="{StaticResource MusicFlowMediaTransportControl}" IsFullWindowButtonVisible="False" IsZoomButtonVisible="False" IsZoomEnabled="False" IsFullWindowEnabled="False" Loaded="MainPageTransportControls_Loaded" />
+                <!--</MediaPlayerElement.TransportControls>
+                </MediaPlayerElement>-->
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>

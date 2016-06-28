@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MusicFlow.Model;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,20 +21,34 @@ namespace MusicFlow.Views
 {
     public sealed partial class NowPlayingPlaylistView : UserControl
     {
+        MediaPlayer Player => MyMediaPlayer.Instance.Player; 
+
         public NowPlayingPlaylistView()
         {
             this.InitializeComponent();
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
-        {           
-            this.Height = 500;
-            this.Width = 400;
+        {
+            
+        }
+
+        private void NowPlayingListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            var x = e.ClickedItem as MediaPlaybackItem;
+            MusicHelper.PlayFromNowplaying(x);
         }
 
         public void UpdateSource(List<MediaPlaybackItem> list)
         {
+            var i = NowPlayingListView.SelectedIndex;
             NowPlayingListView.ItemsSource = list;
+            NowPlayingListView.SelectedIndex = i;
+        }
+       
+        public void UpdateSelectedIndex()
+        {
+            NowPlayingListView.SelectedIndex =  (int)(Player.Source as MediaPlaybackList).CurrentItemIndex;
         }
     }
 }

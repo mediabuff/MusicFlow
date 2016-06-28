@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
     <Page.Resources>
-        <model:MusicItemDurationConverter x:Key="DurationConverter" />
+        <model:DurationConverter x:Key="DurationConverter" />
     </Page.Resources>
 
     <Grid Name="rootGrid" >

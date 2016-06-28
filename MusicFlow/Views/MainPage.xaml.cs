@@ -24,8 +24,13 @@ using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
-namespace MusicFlow
+// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
+
+namespace MusicFlow.Views
 {
+    /// <summary>
+    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// </summary>
     public sealed partial class MainPage : Page
     {
         public ObservableCollection<MusicItem> MusicList;
@@ -33,7 +38,7 @@ namespace MusicFlow
 
         NowPlayingPlaylistView MainPageNowPlayingListView = new NowPlayingPlaylistView();
         MediaPlayer Player => MyMediaPlayer.Instance.Player;
-        MediaPlaybackList NowPlayingList 
+        MediaPlaybackList NowPlayingList
         {
             get { return Player.Source as MediaPlaybackList; }
             set { Player.Source = value; }
@@ -80,8 +85,8 @@ namespace MusicFlow
         {
             foreach (var item in await folder.GetFilesAsync())
             {
-                if (item.FileType == ".mp3" || item.FileType == ".m4a")                
-                    songfilelist.Add(item);                
+                if (item.FileType == ".mp3" || item.FileType == ".m4a")
+                    songfilelist.Add(item);
             }
             foreach (var item in await folder.GetFoldersAsync())
             {
@@ -94,8 +99,8 @@ namespace MusicFlow
         {
             StorageFolder localFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("CoverArt", CreationCollisionOption.OpenIfExists);
 
-            var SongList = new ObservableCollection<MusicItem>();                
-            
+            var SongList = new ObservableCollection<MusicItem>();
+
             foreach (var p in songfilelist)
             {
                 var mItem = new MusicItem();
@@ -108,11 +113,11 @@ namespace MusicFlow
                 mItem.Title = mp.Title;
                 mItem.TrackNumber = mp.TrackNumber.ToString();
                 mItem.Year = mp.Year.ToString();
-                mItem.FilePath = p.Path; 
+                mItem.FilePath = p.Path;
                 mItem.CoveImagePath = string.Format("ms-appdata:///local/CoverArt/Cover_{0}_{1}.jpg", mItem.Album, mItem.Artist);
                 SongList.Add(mItem);
 
-                StorageItemThumbnail currentThumb = await p.GetThumbnailAsync(ThumbnailMode.MusicView,200,ThumbnailOptions.UseCurrentScale);
+                StorageItemThumbnail currentThumb = await p.GetThumbnailAsync(ThumbnailMode.MusicView, 200, ThumbnailOptions.UseCurrentScale);
                 var fname = string.Format("Cover_{0}_{1}.jpg", mItem.Album, mItem.Artist);
                 if (!File.Exists(fname))
                 {
@@ -128,7 +133,7 @@ namespace MusicFlow
                 }
                 ProgressTextBlock.Text = "Loading songs " + SongList.Count() + " out of " + songfilelist.Count();
             }
-            ProgressTextBlock.Visibility = Visibility.Collapsed;    
+            ProgressTextBlock.Visibility = Visibility.Collapsed;
             return SongList;
         }
 
@@ -146,13 +151,13 @@ namespace MusicFlow
         private async Task<ObservableCollection<MusicItem>> deserialize()
         {
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ObservableCollection<MusicItem>));
-            var f1 = await ApplicationData.Current.LocalFolder.CreateFileAsync("MusicData.dat", CreationCollisionOption.OpenIfExists);           
+            var f1 = await ApplicationData.Current.LocalFolder.CreateFileAsync("MusicData.dat", CreationCollisionOption.OpenIfExists);
             Stream ms = await f1.OpenStreamForReadAsync();
-            var songlist = (ObservableCollection<MusicItem>)serializer.ReadObject(ms);           
+            var songlist = (ObservableCollection<MusicItem>)serializer.ReadObject(ms);
             ms.Dispose();
             return songlist;
         }
-        
+
         private void Deletecache()
         {
             //var f1 = await ApplicationData.Current.LocalFolder.GetFileAsync("AlbumData.dat");
@@ -210,7 +215,7 @@ namespace MusicFlow
             mpElement.SetMediaPlayer(Player);
             mpElement.AreTransportControlsEnabled = true;
             mpElement.TransportControls = MainPageTransportControls;
-            
+
         }
 
         //Attach flyout to playlist button
@@ -221,14 +226,24 @@ namespace MusicFlow
             f.Content = MainPageNowPlayingListView;
             f.FlyoutPresenterStyle = new Style(typeof(FlyoutPresenter));
             f.FlyoutPresenterStyle.Setters.Add(new Setter(FlyoutPresenter.PaddingProperty, "0"));
+            f.FlyoutPresenterStyle.Setters.Add(new Setter(FlyoutPresenter.BackgroundProperty, "Transparent"));
+            f.FlyoutPresenterStyle.Setters.Add(new Setter(FlyoutPresenter.BorderThicknessProperty, "0"));
             button.Flyout = f;
             button.Click += Button_Click;
         }
+
+
 
         //Update listview source
         public void UpdateNowplayingListViewSource()
         {
             MainPageNowPlayingListView.UpdateSource(NowPlayingList.Items.ToList());
+        }
+
+        //Update Selected Index
+        public void UpdateNowPlayingListViewSelectedIndex()
+        {
+            MainPageNowPlayingListView.UpdateSelectedIndex();
         }
 
         //Show flyout on buttonclick
@@ -244,7 +259,7 @@ namespace MusicFlow
 
         private void StackPanel_Drop(object sender, DragEventArgs e)
         {
-            
+
             //if (e.DataView.Contains(StandardDataFormats.Text))
             //{
             //    // We need to take a Deferral as we won't be able to confirm the end
@@ -299,6 +314,7 @@ namespace MusicFlow
         CompositionEffectFactory effectFactory;
         ScalarKeyFrameAnimation fadeOutAnimation;
         ScalarKeyFrameAnimation fadeInAnimation;
+        ScalarKeyFrameAnimation flipAnimation;
 
         void setupBackgroundAnimations()
         {
@@ -313,7 +329,7 @@ namespace MusicFlow
                 Background = new ColorSourceEffect()
                 {
                     Name = "Tint",
-                    Color = Color.FromArgb(150,0,0,0),
+                    Color = Color.FromArgb(150, 0, 0, 0),
                 },
 
                 Foreground = new GaussianBlurEffect()
@@ -337,12 +353,15 @@ namespace MusicFlow
             fadeInAnimation.InsertExpressionKeyFrame(0.0f, "0");
             fadeInAnimation.InsertExpressionKeyFrame(1f, "1");
             fadeInAnimation.Duration = TimeSpan.FromMilliseconds(500);
+
+            flipAnimation = compositor.CreateScalarKeyFrameAnimation();
+            flipAnimation.InsertExpressionKeyFrame(0.0f, "");
         }
 
         public async void animateBackGround(string img)
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,()=>{
-               
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
+
                 blurredVisual.StartAnimation(nameof(Opacity), fadeOutAnimation);
                 var image = imageFactory.CreateImageFromUri(new Uri(img));
                 var surfaceBrush = compositor.CreateSurfaceBrush(image.Surface);
@@ -354,11 +373,10 @@ namespace MusicFlow
                 blurredVisual.Size = getBackgroundSize();
                 blurredVisual.CenterPoint = new Vector3(getBackgroundSize().X / 2, getBackgroundSize().Y / 2, 0);
                 ElementCompositionPreview.SetElementChildVisual(bgImage, blurredVisual);
-
                 blurredVisual.StartAnimation(nameof(Opacity), fadeInAnimation);
 
             });
-            
+
         }
 
         private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -367,7 +385,7 @@ namespace MusicFlow
             {
                 blurredVisual.Size = getBackgroundSize();
             }
-           
+
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)

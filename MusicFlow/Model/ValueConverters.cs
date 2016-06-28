@@ -9,7 +9,7 @@ using Windows.UI.Xaml.Data;
 
 namespace MusicFlow.Model
 {
-    class MusicItemDurationConverter : IValueConverter
+    class DurationConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
@@ -53,4 +53,6 @@ namespace MusicFlow.Model
             throw new NotImplementedException();
         }
     }
+
+   
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MusicFlow.Views;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,8 +32,7 @@ namespace MusicFlow.Model
             }
         }
 
-        public MediaPlayer Player { get; private set; }
-
+        public MediaPlayer Player { get; private set; }       
       
         public MyMediaPlayer()
         {
@@ -55,6 +55,7 @@ namespace MusicFlow.Model
                     MainPage mp = (Window.Current.Content as Frame).Content as MainPage;
                     mp.animateBackGround(cover);
                     mp.animateMeidaTransportControl(title,cover);
+                    mp.UpdateNowPlayingListViewSelectedIndex();
                 }
                 
             });

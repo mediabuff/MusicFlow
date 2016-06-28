@@ -4,23 +4,28 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MusicFlow.Views"
     xmlns:Model="using:MusicFlow.Model"
+    xmlns:Controls="using:MusicFlow.Controls"
     xmlns:Media="using:Windows.Media.Playback"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="600"
+    Height="500"
+    Width="400"
+    d:DesignHeight="500"
     d:DesignWidth="400"
     Loaded="UserControl_Loaded"
     Padding="0">
+    
     <UserControl.Resources>
         <Model:NowplayingTitleConverter x:Key="TitleConverter" />
         <Model:NowplayingArtistConverter x:Key="ArtistCoverter" />
     </UserControl.Resources>
     
     <Grid>
+        <Controls:BackDrop Height="500" Width="400" />
         <StackPanel>
             <TextBlock Text="Nowplaying" Margin="12" FontSize="32" Height="46"/>
-            <ListView Name="NowPlayingListView" Height="470" HorizontalAlignment="Center" Width="400">
+            <ListView Name="NowPlayingListView" Height="430" HorizontalAlignment="Center" Width="400"  SelectionMode="Single" ItemClick="NowPlayingListView_ItemClick" IsItemClickEnabled="True">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="Padding" Value="0" />
@@ -29,7 +34,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="Media:MediaPlaybackItem">
                         <Grid Width="380" Margin="0" Padding="0">
-                            <TextBlock Name="Title" Text="{x:Bind Source,Converter={StaticResource ResourceKey=TitleConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,0,0,0" />
+                            <TextBlock Name="Title" Text="{x:Bind Source,Converter={StaticResource ResourceKey=TitleConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0,0,0" />
                             <TextBlock Name="Artist" Text="{x:Bind Source,Converter={StaticResource ResourceKey=ArtistCoverter}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,8,0" />
                         </Grid>
                     </DataTemplate>

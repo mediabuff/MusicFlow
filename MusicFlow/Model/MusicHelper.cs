@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MusicFlow.Views;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -72,6 +73,17 @@ namespace MusicFlow.Model
             //Update mtc playlist
             MainPage mp = (Window.Current.Content as Frame).Content as MainPage;
             mp.UpdateNowplayingListViewSource();
+        }
+
+        public static void PlayFromNowplaying(MediaPlaybackItem e)
+        {
+            var index = (uint) NowPlayingList.Items.IndexOf(e);
+            NowPlayingList.MoveTo(index);
+            Player.Play();
+
+            //Update mtc playlist
+            //MainPage mp = (Window.Current.Content as Frame).Content as MainPage;
+            //mp.UpdateNowplayingListViewSource();
         }
     }
 }
