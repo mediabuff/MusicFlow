@@ -21,6 +21,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
@@ -47,6 +48,11 @@ namespace MusicFlow.Views
         public MainPage()
         {
             this.InitializeComponent();
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            setupAnimations();
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -312,11 +318,10 @@ namespace MusicFlow.Views
         SpriteVisual blurredVisual;
         CompositionImageFactory imageFactory;
         CompositionEffectFactory effectFactory;
-        ScalarKeyFrameAnimation fadeOutAnimation;
-        ScalarKeyFrameAnimation fadeInAnimation;
-        ScalarKeyFrameAnimation flipAnimation;
+        ScalarKeyFrameAnimation fadeInAnimation, fadeOutAnimation;          //Background animations
+        ScalarKeyFrameAnimation imageFlipAnimation, textFlipAnimation;     //MediaTransport Image, Textbox animations
 
-        void setupBackgroundAnimations()
+        void setupAnimations()
         {
             visual = ElementCompositionPreview.GetElementVisual(this);
             compositor = visual.Compositor;
@@ -329,14 +334,14 @@ namespace MusicFlow.Views
                 Background = new ColorSourceEffect()
                 {
                     Name = "Tint",
-                    Color = Color.FromArgb(150, 0, 0, 0),
+                    Color = Color.FromArgb(200, 0, 0, 0),
                 },
 
                 Foreground = new GaussianBlurEffect()
                 {
                     Name = "Blur",
                     Source = new CompositionEffectSourceParameter("source"),
-                    BlurAmount = 15.0f,
+                    BlurAmount = 20.0f,
                     Optimization = EffectOptimization.Balanced,
                     BorderMode = EffectBorderMode.Hard,
                 }
@@ -354,8 +359,16 @@ namespace MusicFlow.Views
             fadeInAnimation.InsertExpressionKeyFrame(1f, "1");
             fadeInAnimation.Duration = TimeSpan.FromMilliseconds(500);
 
-            flipAnimation = compositor.CreateScalarKeyFrameAnimation();
-            flipAnimation.InsertExpressionKeyFrame(0.0f, "");
+            imageFlipAnimation = compositor.CreateScalarKeyFrameAnimation();
+            imageFlipAnimation.InsertExpressionKeyFrame(0.0f, "-60");
+            imageFlipAnimation.InsertExpressionKeyFrame(1f, "0");
+            imageFlipAnimation.Duration = TimeSpan.FromMilliseconds(500);
+
+            textFlipAnimation = compositor.CreateScalarKeyFrameAnimation();
+            textFlipAnimation.InsertExpressionKeyFrame(0.0f, "-90");
+            textFlipAnimation.InsertExpressionKeyFrame(1f, "0");
+            textFlipAnimation.Duration = TimeSpan.FromMilliseconds(300);
+
         }
 
         public async void animateBackGround(string img)
@@ -376,7 +389,23 @@ namespace MusicFlow.Views
                 blurredVisual.StartAnimation(nameof(Opacity), fadeInAnimation);
 
             });
+        }
 
+        public void animateMeidaTransportControl(string title, string cover)
+        {
+            var textbox = MainPageTransportControls.GetAlbumTitleTextbox();
+            var TextBlockVisual = ElementCompositionPreview.GetElementVisual(textbox);
+            TextBlockVisual.RotationAxis = new Vector3(1,0,0);
+            TextBlockVisual.CenterPoint = new Vector3((float)textbox.ActualWidth / 2, (float)textbox.ActualHeight / 2, 0);
+            textbox.Text = title;            
+            TextBlockVisual.StartAnimation("RotationAngleInDegrees", textFlipAnimation);
+
+            var image = MainPageTransportControls.GetAlbumCoverImage();
+            var imageVisual = ElementCompositionPreview.GetElementVisual(image);
+            imageVisual.RotationAxis = new Vector3(1, 0, 0);
+            imageVisual.CenterPoint = new Vector3((float)image.ActualWidth / 2, (float)image.ActualHeight / 2, 0);
+            MainPageTransportControls.GetAlbumCoverImage().Source = new BitmapImage(new Uri(cover));            
+            imageVisual.StartAnimation("RotationAngleInDegrees", imageFlipAnimation);
         }
 
         private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -386,17 +415,6 @@ namespace MusicFlow.Views
                 blurredVisual.Size = getBackgroundSize();
             }
 
-        }
-
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            setupBackgroundAnimations();
-        }
-
-        public void animateMeidaTransportControl(string title, string cover)
-        {
-            MainPageTransportControls.GetAlbumTitleTextbox().Text = title;
-            MainPageTransportControls.GetAlbumCoverImage().Source = new BitmapImage(new Uri(cover));
         }
 
         #endregion

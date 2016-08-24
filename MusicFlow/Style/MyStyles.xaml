@@ -1014,8 +1014,17 @@
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height='Auto' />
                                         </Grid.RowDefinitions>
-                                        <Image x:Name='CoverImage' Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Center" Height="60" Width="60" Source="ms-appx:///Assets/NewStoreLogo.scale-150.png" Margin="4"/>
-                                        <TextBlock x:Name='TitleTextBlock' Text="Music Flow" TextTrimming="CharacterEllipsis" Margin='12,8,12,-8' Grid.Column="1" ToolTipService.ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}" />
+                                        <Image x:Name='CoverImage' Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Center" Height="60" Width="60" Source="ms-appx:///Assets/NewStoreLogo.scale-150.png" Margin="4">
+                                            <Image.Projection>
+                                                <PlaneProjection RotationX="0"/>
+                                            </Image.Projection>
+                                        </Image>
+
+                                        <TextBlock x:Name='TitleTextBlock' Text="Music Flow" TextTrimming="CharacterEllipsis" Margin='12,8,12,-8' Grid.Column="1" ToolTipService.ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}">
+                                            <TextBlock.Projection>
+                                                <PlaneProjection RotationX="0"/>
+                                            </TextBlock.Projection>
+                                        </TextBlock>
                                         <Slider x:Name='ProgressSlider' Style='{StaticResource MediaSliderStyle}' Margin='12,0' MinWidth='120' Height='33' VerticalAlignment='Top' Grid.Column="1" Grid.Row="1" IsThumbToolTipEnabled='False' />
                                         <ProgressBar x:Name='BufferingProgressBar' Height='0' Width="0" IsIndeterminate='True' IsHitTestVisible='False' VerticalAlignment='Top' Margin='0,2,0,0' Grid.Column="1" Grid.Row="1" Visibility='Collapsed' />
                                         <Grid x:Name="TimeTextGrid" Margin="12,-4,12,0" Grid.Row="2" Grid.Column="1">

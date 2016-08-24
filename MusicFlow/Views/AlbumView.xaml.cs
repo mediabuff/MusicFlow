@@ -40,6 +40,7 @@ namespace MusicFlow.Views
             InitializeCompositor();
         }
 
+        #region Navigation
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {           
@@ -53,8 +54,16 @@ namespace MusicFlow.Views
             (App.Current as App).ScrollPosition = SC.VerticalOffset;
         }
 
+        #endregion
 
-        //Gridview
+        #region Gridview
+
+        private void albumView_Loaded(object sender, RoutedEventArgs e)
+        {
+            var SC = FindFirstChild<ScrollViewer>(albumView) as ScrollViewer;
+            if ((App.Current as App).ScrollPosition != 0)
+                SC.ScrollToVerticalOffset((App.Current as App).ScrollPosition);
+        }
 
         private void albumView_ItemClick(object sender, ItemClickEventArgs e)
         {
@@ -62,15 +71,10 @@ namespace MusicFlow.Views
             Frame.Navigate(typeof(AlbumDetail), clickedItem.Album);
         }       
        
-        private void albumView_Loaded(object sender, RoutedEventArgs e)
-        {
-            var SC = FindFirstChild<ScrollViewer>(albumView) as ScrollViewer;
-            if ((App.Current as App).ScrollPosition != 0)
-                SC.ScrollToVerticalOffset((App.Current as App).ScrollPosition);
-        }        
+        #endregion
 
+        #region Mouse hover play button
 
-        //Mouse hover play button
         private void albumgrid_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
             var grid = sender as Grid;
@@ -86,20 +90,24 @@ namespace MusicFlow.Views
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             var song = (sender as Button).DataContext as MusicItem;
-            //MyMediaPlayer.playAlbum(song.Album);
+            var songs = mp.MusicList.Where(i => i.Album == song.Album).Select(i => i);
+            MusicHelper.PlayAlbum(songs);
+            
         }
 
+        #endregion
 
-        //Drag and Drop
+        #region Drag and Drop
         private void albumView_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
         {
             //var SelectedSong = e.Items[0] as Song;
             //e.Data.SetText(SelectedSong.ToString()+"albm");
             //e.Data.RequestedOperation = DataPackageOperation.Copy;
         }
+        #endregion
 
+        #region Animations
 
-        //Animations
         private Compositor _compositor;
 
         private void InitializeCompositor()
@@ -170,8 +178,9 @@ namespace MusicFlow.Views
             args.Handled = true;
         }
 
+        #endregion
 
-        //Helper methos
+        #region Helper methos
         DependencyObject FindFirstChild<T>(DependencyObject initial)
         {
             DependencyObject current = initial;
@@ -193,6 +202,11 @@ namespace MusicFlow.Views
             }
 
         }
-        
+        #endregion
+
+        private void ShuffleButton_Click(object sender, RoutedEventArgs e)
+        {
+            MusicHelper.StartShuffle(myMusic);            
+        }
     }
 }

@@ -55,7 +55,7 @@ namespace MusicFlow.Model
                     MainPage mp = (Window.Current.Content as Frame).Content as MainPage;
                     mp.animateBackGround(cover);
                     mp.animateMeidaTransportControl(title,cover);
-                    mp.UpdateNowPlayingListViewSelectedIndex();
+                    //mp.UpdateNowPlayingListViewSelectedIndex();
                 }
                 
             });

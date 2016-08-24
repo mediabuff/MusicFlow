@@ -8,7 +8,10 @@
       mc:Ignorable="d">    
 
     <Grid Name="RootScrollViewer">
-        <TextBlock Text="Albums" FontSize="32" Margin="20,-8,20,12" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40" />
+        <StackPanel Orientation="Horizontal" Margin="0,-8,20,0" Height="40" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <TextBlock Text="Albums" FontSize="32"  Margin="20,0,0,0" Height="40" />
+            <Button Name="ShuffleButton" Content="~" ToolTipService.ToolTip="Shuffle All Songs" Margin="20,0,0,0" Click="ShuffleButton_Click"/>
+        </StackPanel>
         <GridView Visibility="Visible" Name="albumView" ItemsSource="{x:Bind albumList}" SelectionMode="Extended" IsItemClickEnabled="True" ItemClick="albumView_ItemClick" Margin="10,36,0,0" ContainerContentChanging="AlbumView_ContainerContentChanging" ItemContainerTransitions="{x:Null}" Loaded="albumView_Loaded" CanDragItems="True" DragItemsStarting="albumView_DragItemsStarting" ItemContainerStyle="{StaticResource AlbumViewGridViewItem}">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="model:MusicItem">

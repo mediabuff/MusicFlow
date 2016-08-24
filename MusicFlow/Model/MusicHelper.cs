@@ -22,6 +22,7 @@ namespace MusicFlow.Model
         {
             get { return MyMediaPlayer.Instance.Player; }
         }
+
         static MediaPlaybackList NowPlayingList
         {
             get { return Player.Source as MediaPlaybackList; }
@@ -80,10 +81,29 @@ namespace MusicFlow.Model
             var index = (uint) NowPlayingList.Items.IndexOf(e);
             NowPlayingList.MoveTo(index);
             Player.Play();
+        }
+
+        public async static void PlayAlbum(IEnumerable<MusicItem> m)
+        {
+            NowPlayingList.Items.Clear();
+            foreach (var i in m)
+            {
+                var media = await ToMediaItem(i);
+                NowPlayingList.Items.Add(media);
+            }
+            Player.Play();
 
             //Update mtc playlist
-            //MainPage mp = (Window.Current.Content as Frame).Content as MainPage;
-            //mp.UpdateNowplayingListViewSource();
+            MainPage mp = (Window.Current.Content as Frame).Content as MainPage;
+            mp.UpdateNowplayingListViewSource();
+        }
+
+        public async static void StartShuffle(IEnumerable<MusicItem> m)
+        {
+            var list = new List<MediaPlaybackItem>();
+            foreach (var i in m)
+                list.Add(await ToMediaItem(i));
+            
         }
     }
 }

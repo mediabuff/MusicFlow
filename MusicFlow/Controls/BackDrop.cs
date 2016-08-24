@@ -33,7 +33,7 @@ namespace MusicFlow.Controls
                 Background = new ColorSourceEffect()
                 {
                     Name = "Tint",
-                    Color = Color.FromArgb(150, 0, 0, 0),
+                    Color = Color.FromArgb(175, 0, 0, 0),
                 },
 
                 Foreground = new GaussianBlurEffect()
@@ -51,9 +51,6 @@ namespace MusicFlow.Controls
             effectBrush.SetSourceParameter("source", compositor.CreateBackdropBrush());
 
             blurredVisual.Brush = effectBrush;
-
-           
-
             ElementCompositionPreview.SetElementChildVisual(this, blurredVisual);
 
             this.SizeChanged += BackDrop_SizeChanged;

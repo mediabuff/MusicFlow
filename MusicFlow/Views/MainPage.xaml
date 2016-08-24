@@ -12,19 +12,24 @@
     SizeChanged="Page_SizeChanged">
 
     <Grid Name="bgGrid">
-
         <Grid Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
+            
             <Image x:FieldModifier="public" Name="bgImage" HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="UniformToFill" Visibility="Visible" Grid.RowSpan="2" />
+            
             <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <ProgressBar Name="Progressbar" Margin="0,8,0,0" IsIndeterminate="True" ShowPaused="True" Background="#00000000" />
                 <TextBlock Name="ProgressTextBlock" Text="" Margin="0,4,0,0" HorizontalAlignment="Center" />
             </StackPanel>
+            
             <Frame Name="MainFrame" />
+            
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Grid.Row="1">
+                
                 <Button Name="b1">
                     <Button.Flyout>
                         <Flyout>
@@ -32,11 +37,9 @@
                         </Flyout>
                     </Button.Flyout>
                 </Button>
-                <!--<MediaPlayerElement Name="mpElement" AreTransportControlsEnabled="True">
-                    <MediaPlayerElement.TransportControls>-->
+                
                 <Model:MusicFlowMediaTransportControls x:Name="MainPageTransportControls" x:FieldModifier="Public" Style="{StaticResource MusicFlowMediaTransportControl}" IsFullWindowButtonVisible="False" IsZoomButtonVisible="False" IsZoomEnabled="False" IsFullWindowEnabled="False" Loaded="MainPageTransportControls_Loaded" />
-                <!--</MediaPlayerElement.TransportControls>
-                </MediaPlayerElement>-->
+            
             </Grid>
         </Grid>
     </Grid>
