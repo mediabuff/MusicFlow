@@ -39,11 +39,11 @@ namespace MusicFlow.Views
 
         NowPlayingPlaylistView MainPageNowPlayingListView = new NowPlayingPlaylistView();
         MediaPlayer Player => MyMediaPlayer.Instance.Player;
-        MediaPlaybackList NowPlayingList
-        {
-            get { return Player.Source as MediaPlaybackList; }
-            set { Player.Source = value; }
-        }
+        MediaPlaybackList NowPlayingList => Player.Source as MediaPlaybackList;
+        //{
+        //    get { return Player.Source as MediaPlaybackList; }
+        //    set { Player.Source = value; }
+        //}
 
         public MainPage()
         {
@@ -216,7 +216,6 @@ namespace MusicFlow.Views
 
         void SetMediaTransportControls()
         {
-            NowPlayingList = Player.Source as MediaPlaybackList;
             mpElement = new MediaPlayerElement();
             mpElement.SetMediaPlayer(Player);
             mpElement.AreTransportControlsEnabled = true;
@@ -237,8 +236,6 @@ namespace MusicFlow.Views
             button.Flyout = f;
             button.Click += Button_Click;
         }
-
-
 
         //Update listview source
         public void UpdateNowplayingListViewSource()

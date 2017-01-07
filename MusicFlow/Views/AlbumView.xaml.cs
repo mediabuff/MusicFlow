@@ -57,7 +57,7 @@ namespace MusicFlow.Views
         #endregion
 
         #region Gridview
-
+       
         private void albumView_Loaded(object sender, RoutedEventArgs e)
         {
             var SC = FindFirstChild<ScrollViewer>(albumView) as ScrollViewer;
@@ -91,7 +91,7 @@ namespace MusicFlow.Views
         {
             var song = (sender as Button).DataContext as MusicItem;
             var songs = mp.MusicList.Where(i => i.Album == song.Album).Select(i => i);
-            MusicHelper.PlayAlbum(songs);
+            MusicHelper.PlayAlbum(songs,0);
             
         }
 

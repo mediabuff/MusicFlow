@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation.Collections;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -66,6 +67,9 @@ namespace MusicFlow.Model
 
         public async static void AddToNowPlaying(MusicItem m)
         {
+            //check
+            if (NowPlayingList.Items.Count == 0)
+                NowPlayingList.CurrentItemChanged += NowPlayingList_CurrentItemChanged1;
             var media = await ToMediaItem(m);
             NowPlayingList.Items.Add(media);
             Player.Play();
@@ -83,19 +87,49 @@ namespace MusicFlow.Model
             Player.Play();
         }
 
-        public async static void PlayAlbum(IEnumerable<MusicItem> m)
+        public async static void PlayAlbum(IEnumerable<MusicItem> m,uint index)
         {
+            NowPlayingList.CurrentItemChanged -= NowPlayingList_CurrentItemChanged1;
+            NowPlayingList.CurrentItemChanged += NowPlayingList_CurrentItemChanged;
+
+
             NowPlayingList.Items.Clear();
             foreach (var i in m)
             {
                 var media = await ToMediaItem(i);
                 NowPlayingList.Items.Add(media);
             }
+            NowPlayingList.MoveTo(index);
             Player.Play();
+
+
+            NowPlayingList.CurrentItemChanged -= NowPlayingList_CurrentItemChanged;
+            NowPlayingList.CurrentItemChanged += NowPlayingList_CurrentItemChanged1;
 
             //Update mtc playlist
             MainPage mp = (Window.Current.Content as Frame).Content as MainPage;
             mp.UpdateNowplayingListViewSource();
+        }
+
+        private static async void NowPlayingList_CurrentItemChanged1(MediaPlaybackList sender, CurrentMediaPlaybackItemChangedEventArgs args)
+        {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                if (sender.CurrentItem != null)
+                {
+                    var cover = sender.CurrentItem.Source.CustomProperties["CoverImagePath"] as string;
+                    var title = sender.CurrentItem.Source.CustomProperties["Title"] as string;
+                    MainPage mp = (Window.Current.Content as Frame).Content as MainPage;
+                    mp.animateBackGround(cover);
+                    mp.animateMeidaTransportControl(title, cover);
+                    //mp.UpdateNowPlayingListViewSelectedIndex();
+                }
+
+            });
+        }
+
+        private static void NowPlayingList_CurrentItemChanged(MediaPlaybackList sender, CurrentMediaPlaybackItemChangedEventArgs args)
+        {
         }
 
         public async static void StartShuffle(IEnumerable<MusicItem> m)
