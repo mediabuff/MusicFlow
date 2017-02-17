@@ -41,14 +41,22 @@ namespace MusicFlow.Views
 
         public void UpdateSource(List<MediaPlaybackItem> list)
         {
-            var i = NowPlayingListView.SelectedIndex;
-            NowPlayingListView.ItemsSource = list;
-            NowPlayingListView.SelectedIndex = i;
+            try
+            {
+                var i = NowPlayingListView.SelectedIndex;
+                NowPlayingListView.ItemsSource = list;
+                NowPlayingListView.SelectedIndex = i;
+            }
+            catch { }
         }
        
         public void UpdateSelectedIndex()
         {
-            NowPlayingListView.SelectedIndex =  (int)(Player.Source as MediaPlaybackList).CurrentItemIndex;
+            try
+            {
+                NowPlayingListView.SelectedIndex = (int)(Player.Source as MediaPlaybackList).CurrentItemIndex;
+            }
+            catch { }
         }
     }
 }

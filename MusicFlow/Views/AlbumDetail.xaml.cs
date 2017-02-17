@@ -40,15 +40,13 @@ namespace MusicFlow.Views
         IEnumerable<MusicItem> songs;
         MusicItem song1;
         MainPage mp = (Window.Current.Content as Frame).Content as MainPage;
-        MediaPlayer Player;
-        MediaPlaybackList NowPlayingList;
+        MediaPlayer Player => MyMediaPlayer.Instance.Player;
+        MediaPlaybackList NowPlayingList => MyMediaPlayer.Instance.Player.Source as MediaPlaybackList;
 
         public AlbumDetail()
         {
             this.InitializeComponent();
             _compositor = ElementCompositionPreview.GetElementVisual(this).Compositor;
-            Player = MyMediaPlayer.Instance.Player;
-            NowPlayingList = MyMediaPlayer.Instance.Player.Source as MediaPlaybackList;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -62,10 +60,15 @@ namespace MusicFlow.Views
             //setupVisibility();
         }
 
-        private  void ListView_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            var ci = (MusicItem)e.ClickedItem;
-            MusicHelper.Play(ci);
+        private void ListView_ItemClick(object sender, ItemClickEventArgs e)
+        {           
+            var list = songs.ToList();
+            var index = (uint)list.IndexOf(e.ClickedItem as MusicItem);
+            MusicHelper.PlayAlbum(songs,index);
+
+            //OLD
+            //var ci = (MusicItem)e.ClickedItem;
+            //MusicHelper.Play(ci);
         }
         
         private void B1_Click(object sender, RoutedEventArgs e)
@@ -180,17 +183,12 @@ namespace MusicFlow.Views
             visual.StartAnimation("Scale", animation);
         }
 
-
-        //Helper methods
-
         private void setupVisibility()
         {
             if (song1.Genre == "")
             {
                 dot.Visibility = Visibility.Collapsed;
             }
-        }
-
-        
+        }        
     }
 }
