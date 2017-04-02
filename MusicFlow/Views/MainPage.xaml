@@ -25,8 +25,16 @@
                 <ProgressBar Name="Progressbar" Margin="0,8,0,0" IsIndeterminate="True" ShowPaused="True" Background="#00000000" />
                 <TextBlock Name="ProgressTextBlock" Text="" Margin="0,4,0,0" HorizontalAlignment="Center" />
             </StackPanel>
+
+            <Pivot>
+                <PivotItem Header="Music">
+                    <Frame Name="MainFrame" />
+                </PivotItem>
+                <PivotItem Header="Map">
+                    <Frame Name="MapFrame" />
+                </PivotItem>
+            </Pivot>
             
-            <Frame Name="MainFrame" />
             
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Grid.Row="1">
                 

@@ -62,6 +62,7 @@ namespace MusicFlow.Views
             SetMediaTransportControls();
             await GetMusic();
             MainFrame.Navigate(typeof(Views.AlbumView), MusicList);
+            MapFrame.Navigate(typeof(Views.MapPage));
         }
 
 
@@ -111,17 +112,21 @@ namespace MusicFlow.Views
             {
                 var mItem = new MusicItem();
                 var mp = await p.Properties.GetMusicPropertiesAsync();
-                mItem.Artist = mp.Artist;
-                mItem.Album = mp.Album;
-                mItem.AlbumArtist = mp.AlbumArtist;
-                mItem.Duration = mp.Duration;
-                mItem.Genre = mp.Genre != null ? mp.Genre[0].ToString() : "Unknown";
-                mItem.Title = mp.Title;
-                mItem.TrackNumber = mp.TrackNumber.ToString();
-                mItem.Year = mp.Year.ToString();
-                mItem.FilePath = p.Path;
-                mItem.CoveImagePath = string.Format("ms-appdata:///local/CoverArt/Cover_{0}_{1}.jpg", mItem.Album, mItem.Artist);
-                SongList.Add(mItem);
+                try
+                {
+                    mItem.Artist = mp.Artist;
+                    mItem.Album = mp.Album;
+                    mItem.AlbumArtist = mp.AlbumArtist;
+                    mItem.Duration = mp.Duration;
+                    mItem.Genre = mp.Genre != null ? mp.Genre[0].ToString() : "Unknown";
+                    mItem.Title = mp.Title;
+                    mItem.TrackNumber = mp.TrackNumber.ToString();
+                    mItem.Year = mp.Year.ToString();
+                    mItem.FilePath = p.Path;
+                    mItem.CoveImagePath = string.Format("ms-appdata:///local/CoverArt/Cover_{0}_{1}.jpg", mItem.Album, mItem.Artist);
+                    SongList.Add(mItem);
+                }
+                catch { }
 
                 StorageItemThumbnail currentThumb = await p.GetThumbnailAsync(ThumbnailMode.MusicView, 200, ThumbnailOptions.UseCurrentScale);
                 var fname = string.Format("Cover_{0}_{1}.jpg", mItem.Album, mItem.Artist);
