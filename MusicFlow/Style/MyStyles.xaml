@@ -1020,7 +1020,7 @@
                                             </Image.Projection>
                                         </Image>
 
-                                        <TextBlock x:Name='TitleTextBlock' Text="Music Flow" TextTrimming="CharacterEllipsis" Margin='12,8,12,-8' Grid.Column="1" ToolTipService.ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}">
+                                        <TextBlock x:Name='TitleTextBlock' Text="Safe &amp; Sound" TextTrimming="CharacterEllipsis" Margin='12,8,12,-8' Grid.Column="1" ToolTipService.ToolTip="{Binding Text, RelativeSource={RelativeSource Mode=Self}}">
                                             <TextBlock.Projection>
                                                 <PlaneProjection RotationX="0"/>
                                             </TextBlock.Projection>
