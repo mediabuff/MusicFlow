@@ -34,8 +34,10 @@
                     <Frame Name="MapFrame" />
                 </PivotItem>
             </Pivot>
-            
-            
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="200,4,0,0">
+                <TextBlock Text="Safe Mode" VerticalAlignment="Center" FontSize="20"/>
+                <ToggleSwitch VerticalAlignment="Top" HorizontalAlignment="Left" Margin="8,0,0,0"/>
+            </StackPanel>
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Grid.Row="1">
                 
                 <Button Name="b1">
