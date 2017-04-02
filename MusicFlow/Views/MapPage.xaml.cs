@@ -49,8 +49,6 @@ namespace MusicFlow.Views
                 var currentLocationIcon = new MapIcon();
                 currentLocationIcon.Location = pos.Coordinate.Point;
                 MyMap.MapElements.Add(currentLocationIcon);
-
-
             }
 
            
